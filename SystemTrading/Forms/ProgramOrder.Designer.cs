@@ -138,7 +138,7 @@ namespace SystemTrading.Forms
             this.allStockdataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("맑은 고딕", 8F);
             dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -532,7 +532,7 @@ namespace SystemTrading.Forms
             this.recommendDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("맑은 고딕", 8F);
             dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -617,11 +617,11 @@ namespace SystemTrading.Forms
             // 
             // myStockCount
             // 
-            this.myStockCount.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.myStockCount.Font = new System.Drawing.Font("맑은 고딕", 8F, System.Drawing.FontStyle.Bold);
             this.myStockCount.ForeColor = System.Drawing.Color.Red;
-            this.myStockCount.Location = new System.Drawing.Point(10, 0);
+            this.myStockCount.Location = new System.Drawing.Point(0, 0);
             this.myStockCount.Name = "myStockCount";
-            this.myStockCount.Size = new System.Drawing.Size(135, 27);
+            this.myStockCount.Size = new System.Drawing.Size(106, 27);
             this.myStockCount.TabIndex = 15;
             this.myStockCount.Text = "보유 종목수 : 4개";
             this.myStockCount.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -639,7 +639,7 @@ namespace SystemTrading.Forms
             this.balanceDataGridView.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.GradientActiveCaption;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("맑은 고딕", 9F);
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("맑은 고딕", 8F);
             dataGridViewCellStyle3.ForeColor = System.Drawing.Color.Black;
             dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.ControlLightLight;
             dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.Black;
@@ -1077,11 +1077,11 @@ namespace SystemTrading.Forms
             // summaryAmount
             // 
             this.summaryAmount.BackColor = System.Drawing.Color.Transparent;
-            this.summaryAmount.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.summaryAmount.Font = new System.Drawing.Font("맑은 고딕", 8F);
             this.summaryAmount.ForeColor = System.Drawing.Color.Black;
-            this.summaryAmount.Location = new System.Drawing.Point(151, 0);
+            this.summaryAmount.Location = new System.Drawing.Point(112, 0);
             this.summaryAmount.Name = "summaryAmount";
-            this.summaryAmount.Size = new System.Drawing.Size(568, 27);
+            this.summaryAmount.Size = new System.Drawing.Size(617, 27);
             this.summaryAmount.TabIndex = 15;
             this.summaryAmount.Text = "예수금: 950,230원 / D+2예수금: 1,000,000원 / 인출가능금액: 500,000원 / 평가금액: 955,550원";
             this.summaryAmount.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
