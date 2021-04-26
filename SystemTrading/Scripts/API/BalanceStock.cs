@@ -138,8 +138,8 @@ public class BalanceStock
     /// </summary>
     public void SetSellCount(int waitOrderCount, int resultCount, int orderCount)
     {
-        this.BuyingMoney = (BuyingMoney * orderCount) - (BuyingMoney * resultCount);
-        this.HaveCnt = orderCount - resultCount;
+        this.BuyingMoney = (BuyingMoney / orderCount) * waitOrderCount;
+        this.HaveCnt = waitOrderCount;
         this.WaitOrderCount = waitOrderCount;
         if (waitOrderCount == 0)
         {
