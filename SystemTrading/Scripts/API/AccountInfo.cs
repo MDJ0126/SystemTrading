@@ -219,7 +219,7 @@ public class AccountInfo
                     {
                         TodayProfitAmount += resultPrice - fees - tax - balanceStock.BuyingMoney;
                         var profit = resultPrice - fees - tax - balanceStock.BuyingMoney;
-                        var profitRate = profit / balanceStock.BuyingMoney * 100f;
+                        var profitRate = profit / (float)balanceStock.BuyingMoney * 100f;
                         LineNotify.SendMessage($"{balanceStock.StockName}를 매도 체결되었습니다. 차익 : {profit:N0}원({profitRate:F2}%)");
                         LineNotify.SendMessage($"balanceStock.BuyingMoney: {balanceStock.BuyingMoney}, resultPrice: {resultPrice}, fees: {fees}, tax: {tax}");
                     }
