@@ -220,23 +220,26 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 // 매도 체크
                 for (int i = 0; i < balanceInfos.Count; i++)
                 {
-                    bool isSell = false;
-                    // 조건1: 최대 손익율에서 스탑 로스 책정
-                    if (balanceInfos[i].MaxProfitRate - balanceInfos[i].EstimatedProfitRate >= StopLoss)
+                    if (balanceInfos[i].BalanceStockState == eBalanceStockState.Have)
                     {
-                        isSell = true;
-                    }
+                        bool isSell = false;
+                        // 조건1: 최대 손익율에서 스탑 로스 책정
+                        if (balanceInfos[i].MaxProfitRate - balanceInfos[i].EstimatedProfitRate >= StopLoss)
+                        {
+                            isSell = true;
+                        }
 
-                    // 조건2: 최대 이익 시점 도달한 경우
-                    if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
-                    {
-                        isSell = true;
-                    }
+                        // 조건2: 최대 이익 시점 도달한 경우
+                        if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
+                        {
+                            isSell = true;
+                        }
 
-                    if (isSell)
-                    {
-                        if (!sellStocks.Exists(item => item.Equals(balanceInfos[i])))
-                            sellStocks.Add(balanceInfos[i]);
+                        if (isSell)
+                        {
+                            if (!sellStocks.Exists(item => item.Equals(balanceInfos[i])))
+                                sellStocks.Add(balanceInfos[i]);
+                        }
                     }
                 }
 

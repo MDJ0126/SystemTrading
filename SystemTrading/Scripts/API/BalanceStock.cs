@@ -211,6 +211,6 @@ public class BalanceStock
     private void RefreshMaxProfitRate()
     {
         if (MaxProfitRate == null || MaxProfitRate < EstimatedProfitRate)
-            this.MaxProfitRate = this.EstimatedProfitRate;
+            this.MaxProfitRate = EstimatedProfitRate;
     }
 }
