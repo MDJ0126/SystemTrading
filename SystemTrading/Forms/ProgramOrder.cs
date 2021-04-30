@@ -215,11 +215,13 @@ namespace SystemTrading.Forms
                 int horizontalScrollingOffset = recommendDataGridView.HorizontalScrollingOffset;
                 int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : recommendDataGridView.FirstDisplayedScrollingRowIndex;
                 //int selectIndex = recommendDataGridView.CurrentCell?.RowIndex ?? -1;
-                recommendDataGridView.DataSource = _recommendStockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
+                //recommendDataGridView.DataSource = _recommendStockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
+                recommendDataGridView.DataSource = _recommendStockDataByGrids.OrderByDescending(a => a.Score);
                 //if (recommendDataGridView.Rows.Count > selectIndex && selectIndex >= 0)
                 //    recommendDataGridView.Rows[selectIndex].Selected = true;
                 recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-                recommendDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
+                if (recommendDataGridView.FirstDisplayedScrollingRowIndex != -1)
+                    recommendDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
                 recommendDataGridView.ClearSelection();
             }
         }

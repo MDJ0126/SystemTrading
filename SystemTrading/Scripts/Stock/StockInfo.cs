@@ -194,7 +194,7 @@ public class StockInfo
         get
         {
             // 평균 등락률
-            return _growthRate.AveragePerMinute;
+            return _growthRate?.AveragePerMinute ?? 0f;
         }
     }
 
