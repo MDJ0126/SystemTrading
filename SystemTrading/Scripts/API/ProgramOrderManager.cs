@@ -55,12 +55,17 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 손실 제한률
     /// </summary>
-    public float StopLoss { get; set; } = 3.5f; //(%)
+    public float StopLoss { get; set; } = 2.5f; //(%)
 
     /// <summary>
     /// 매도 최대 시점
     /// </summary>
     public float MaxPriceRate { get; set; } = 27.5f; //(%)
+
+    /// <summary>
+    /// 매도 시점
+    /// </summary>
+    public float SellProfit { get; set; } = 2.5f; //(%)
 
     /// <summary>
     /// 매입 제한 금액
@@ -185,10 +190,10 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 {
                     if (AccountInfo != null)
                     {
-                        long useAvailableMoney = Math.Min(AccountInfo.AvailableMoney, (long)(AccountInfo.TotalEvaluationAmount * 0.9f));
+                        long useAvailableMoney = Math.Min(AccountInfo.AvailableMoney, (long)(AccountInfo.EstimatedAssets_Calc * 0.9f));
                         // 사용 가능 금액이 총 평가 금액보다 50% 이상 많을 경우에 매수 시도
                         // 계속 반복하다보면 1개씩 매입하는 비효율 현상이 생겨서 분기태움.(안전 장치)
-                        if (useAvailableMoney >= AccountInfo.TotalEvaluationAmount * 0.5f)
+                        if (useAvailableMoney >= AccountInfo.EstimatedAssets_Calc * 0.5f)
                         {
                             if (TryStockSellCount <= recommendeds.Count)
                             {
@@ -229,11 +234,17 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             isSell = true;
                         }
 
-                        // 조건2: 최대 이익 시점 도달한 경우
-                        if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
+                        // 조건2: 최대 이익 시점 도달하는 경우
+                        //if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
+                        //{
+                        //    isSell = true;
+                        //}
+
+                        // 조건3: 특정 손익율 도달하는 경우
+                        if (balanceInfos[i].EstimatedProfitRate >= SellProfit)
                         {
                             isSell = true;
-                        }
+                        }    
 
                         if (isSell)
                         {

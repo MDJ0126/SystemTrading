@@ -32,6 +32,23 @@ public class AccountInfo
     public long EstimatedAssets { get; set; }
 
     /// <summary>
+    /// 추정 자산 (직접 계산한 예상 자산)
+    /// </summary>
+    public long EstimatedAssets_Calc 
+    { 
+        get
+        {
+            long calcEst = DepositAfter2Day;
+            for (int i = 0; i < BalanceStocks.Count; i++)
+            {
+                var current = BalanceStocks[i];
+                calcEst += (long)Math.Truncate(current.CurrentTotalPrice * 0.99385f);
+            }
+            return calcEst;
+        } 
+    }
+
+    /// <summary>
     /// 총 매입 금액
     /// </summary>
     public long TotalBuyAmount { get; set; }

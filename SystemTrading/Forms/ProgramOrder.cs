@@ -311,13 +311,6 @@ namespace SystemTrading.Forms
                     balanceDataGridView.Rows[i].DefaultCellStyle.ForeColor = Utils.GetTextColor(myStock.EstimatedProfitRate);
                 }
 
-                long calcEst = accountInfo.DepositAfter2Day;
-                for (int i = 0; i < accountInfo.BalanceStocks.Count; i++)
-                {
-                    var current = accountInfo.BalanceStocks[i];
-                    calcEst += (long)Math.Truncate(current.CurrentTotalPrice * 0.99385f);
-                }
-
                 todayProfitAmount.Text = $"{accountInfo.TodayProfitAmount}원";
                 todayProfitAmount.ForeColor = Utils.GetTextColor(accountInfo.TodayProfitAmount);
                 todayProfitRate.Text = $"{accountInfo.TodayProfitRate}%";
@@ -325,7 +318,7 @@ namespace SystemTrading.Forms
                 myStockCount.Text = $"보유 종목 : {accountInfo.BalanceStocks.Count}개";
                 summaryAmount.Text = $"예수금: {accountInfo.Deposit.ToString("n0")}원 / " +
                                      $"D+2예수금: {accountInfo.DepositAfter2Day.ToString("n0")}원 / " +
-                                     $"추정자산: {accountInfo.EstimatedAssets.ToString("n0")}원 ({calcEst.ToString("n0")}원) /" +
+                                     $"추정자산: {accountInfo.EstimatedAssets.ToString("n0")}원 ({accountInfo.EstimatedAssets_Calc.ToString("n0")}원) /" +
                                      $"사용가능액 : {accountInfo.AvailableMoney.ToString("n0")}원";
 
                 balanceDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
