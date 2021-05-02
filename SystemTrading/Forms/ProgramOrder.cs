@@ -34,6 +34,7 @@ namespace SystemTrading.Forms
         public void OnConnect()
         {
             this.Enabled = true;
+            UpdateUI();
             string tempPassward = ProgramManager.GetTempPassward();
             if (!string.IsNullOrEmpty(tempPassward))
             {
