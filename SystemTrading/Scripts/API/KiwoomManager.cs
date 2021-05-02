@@ -146,13 +146,14 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
 
     public void Clear()
     {
+        LineNotify.SendMessage($"'{this.LoginInfo.UserName}'님의 계정이 시스템 트레이딩에서 로그아웃 처리되었습니다.");
+
         // 로그인 정보 초기화
         this.LoginInfo.Clear();
 
         // 실시간 데이터 연결 해제
         DisconnectAllRealData();
 
-        LineNotify.SendMessage($"'{this.LoginInfo.UserName}'님의 계정이 시스템 트레이딩에서 로그아웃 처리되었습니다.");
         Logger.Log("[Logout]");
     }
 
