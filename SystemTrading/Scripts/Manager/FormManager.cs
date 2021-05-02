@@ -9,6 +9,7 @@ using SystemTrading.Forms;
 public enum eForm
 {
     Indicator,
+    APIController,
     UserInfoForm,
     OrderStock,
     ProgramSetting,
@@ -22,6 +23,20 @@ public enum eForm
 public class FormManager
 {
     public static Form MainForm { get; set; } = null;
+
+    public static Form GetForm(eForm formType)
+    {
+        foreach (Form openForm in Application.OpenForms)
+        {
+            if (openForm.Name == formType.ToString())
+            {
+                return openForm;
+            }
+        }
+
+        // 열려있지 않은 경우
+        return null;
+    }
 
     public static Form OpenForm(eForm formType, Control control = null)
     {

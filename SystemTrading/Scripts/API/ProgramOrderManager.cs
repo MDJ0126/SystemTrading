@@ -5,9 +5,9 @@ using System.Threading;
 
 public class ProgramOrderManager : Singleton<ProgramOrderManager>
 {
-    private DateTime _tradingStartTime, _tradingEndTime;
+    private DateTime _tradingStartTime, _tradingEndTime, _allSellTime;
 
-    private bool _isAutoProgramOrder = false;
+    private bool _isAutoProgramOrder = true;
     /// <summary>
     /// 자동 매매 시작 여부
     /// </summary>
@@ -40,7 +40,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 시도 최소 등락율
     /// </summary>
-    public float StartRate { get; set; } = 3.5f; //(%)
+    public float StartRate { get; set; } = 1.5f; //(%)
 
     /// <summary>
     /// 매수 한계선
@@ -105,6 +105,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
         // 프로그램 자동 거래 시간 금일 오전 9시 10분 ~ 오후 2시 45분까지
         _tradingStartTime = ProgramConfig.NowTime.Date.AddHours(9).AddMinutes(00);
         _tradingEndTime = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(45);
+        _allSellTime = ProgramConfig.NowTime.Date.AddHours(15).AddMinutes(10);
         _sellStockInfos.Clear();
     }
 
@@ -149,43 +150,41 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             // 설정된 거래 시간 범위 기준으로 거래 진행
             if (_tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime)
             {
-                // 매수 예정 리스트 체크
+                // 1. 매수 예정 리스트 체크
                 for (int i = 0; i < orderStockInfos.Count; i++)
                 {
                     var stockInfo = orderStockInfos[i];
                     if (stockInfo != null)
                     {
-                        // 조건: 매수 한계선
-                        if (stockInfo.UpDownRate <= LimitRate)
+                        bool isBuy = false;
+                        // 조건: 매수시 등락율 범위
+                        if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                         {
-                            // 조건: 최소 매수 진입 등락률
-                            if (stockInfo.UpDownRate >= StartRate)
+                            // 조건: 분당 성장률
+                            if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                             {
-                                // 조건: 분당 성장률
-                                if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
-                                {
-                                    if (!recommendeds.Exists(stock => stockInfo.Equals(stock)) &&
-                                        !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
-                                    {
-                                        recommendeds.Add(stockInfo);
-                                    }
-                                }
+                                isBuy = true;
                             }
 
                             // 조건: 급등주
-                            if (stockInfo.GrowthRatePerMinute >= 5f)
+                            if (stockInfo.GrowthRatePerMinute >= 3f)
                             {
-                                if (!recommendeds.Exists(stock => stockInfo.Equals(stock)) &&
-                                    !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
-                                {
-                                    recommendeds.Add(stockInfo);
-                                }
+                                isBuy = true;
+                            }
+                        }
+
+                        if (isBuy)
+                        {
+                            if (!recommendeds.Exists(stock => stockInfo.Equals(stock)) &&
+                                !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
+                            {
+                                recommendeds.Add(stockInfo);
                             }
                         }
                     }
                 }
 
-                // 매수하기
+                // 1-1. 매수하기
                 if (IsAutoProgramOrder)
                 {
                     if (AccountInfo != null)
@@ -222,7 +221,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     }
                 }
 
-                // 매도 체크
+                // 2. 매도 체크
                 for (int i = 0; i < balanceInfos.Count; i++)
                 {
                     if (balanceInfos[i].BalanceStockState == eBalanceStockState.Have)
@@ -244,7 +243,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         if (balanceInfos[i].EstimatedProfitRate >= SellProfit)
                         {
                             isSell = true;
-                        }    
+                        }
 
                         if (isSell)
                         {
@@ -254,7 +253,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     }
                 }
 
-                // 매도하기
+                // 2-1. 매도하기
                 if (IsAutoProgramOrder)
                 {
                     for (int i = 0; i < sellStocks.Count; i++)
@@ -264,6 +263,19 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                     }
                     sellStocks.Clear();
+                }
+            }
+            else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5))
+            {
+                // 모두 매도하기
+                if (IsAutoProgramOrder)
+                {
+                    for (int i = 0; i < balanceInfos.Count; i++)
+                    {
+                        var balanceStock = balanceInfos[i];
+                        if (balanceStock.BalanceStockState == eBalanceStockState.Have)
+                            OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
+                    }
                 }
             }
             Thread.Sleep(500);

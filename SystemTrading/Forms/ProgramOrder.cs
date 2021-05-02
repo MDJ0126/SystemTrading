@@ -34,6 +34,12 @@ namespace SystemTrading.Forms
         public void OnConnect()
         {
             this.Enabled = true;
+            string tempPassward = ProgramManager.GetTempPassward();
+            if (!string.IsNullOrEmpty(tempPassward))
+            {
+                passwardTextBox.Text = tempPassward;
+                StartCoroutine("LinkAccount");
+            }
         }
 
         public void OnDisconnect()
@@ -101,6 +107,9 @@ namespace SystemTrading.Forms
 
             // 잔고 업데이트
             UpdateLinkAccountUI();
+
+            // 프로그램 오더 영역
+            UpdateProgramOrderExecuteUI();
         }
 
         /// <summary>
@@ -313,7 +322,7 @@ namespace SystemTrading.Forms
 
                 todayProfitAmount.Text = $"{accountInfo.TodayProfitAmount}원";
                 todayProfitAmount.ForeColor = Utils.GetTextColor(accountInfo.TodayProfitAmount);
-                todayProfitRate.Text = $"{accountInfo.TodayProfitRate}%";
+                todayProfitRate.Text = $"{accountInfo.TodayProfitRate:F2}%";
                 todayProfitRate.ForeColor = Utils.GetTextColor(accountInfo.TodayProfitRate);
                 myStockCount.Text = $"보유 종목 : {accountInfo.BalanceStocks.Count}개";
                 summaryAmount.Text = $"예수금: {accountInfo.Deposit.ToString("n0")}원 / " +
@@ -433,7 +442,7 @@ namespace SystemTrading.Forms
                         passwardTextBox.Enabled = false;
                         linkAccountButton.Text = "해제";
 
-                        bool? responseResult = null;
+                        bool responseResult = false;
                         accountInfo.RequestAccountInfo(passwardTextBox.Text, (result) =>
                         {
                             if (result)
@@ -441,20 +450,11 @@ namespace SystemTrading.Forms
                                 ToastMessage.Show("계좌 연결이 완료됐습니다.");
                                 KiwoomManager.Instance.LoginInfo.SetSelectAccount(accountInfo);
                                 ProgramOrderManager.Instance.LinkAccount(accountInfo, passwardTextBox.Text);
+                                ProgramManager.SaveTempPassWard(passwardTextBox.Text);
                             }
-                            responseResult = result;
+                            responseResult = true;
                         });
-                        yield return new WaitUntil(() => responseResult != null && responseResult.Value);
-
-                        if (!responseResult.Value)
-                        {
-                            KiwoomManager.Instance.LoginInfo.SetSelectAccount(null);
-                            ProgramOrderManager.Instance.UnlinkAccount();
-                            accountListComboBox.Enabled = true;
-                            passwardTextBox.Enabled = true;
-                            passwardTextBox.Text = string.Empty;
-                            linkAccountButton.Text = "연결";
-                        }
+                        yield return new WaitUntil(() => responseResult);
                         UpdateLinkAccountUI();
                     }
                 }
@@ -463,6 +463,7 @@ namespace SystemTrading.Forms
             {
                 KiwoomManager.Instance.LoginInfo.SetSelectAccount(null);
                 ProgramOrderManager.Instance.UnlinkAccount();
+                ProgramManager.ClearTempPassWard();
                 accountListComboBox.Enabled = true;
                 passwardTextBox.Enabled = true;
                 passwardTextBox.Text = string.Empty;
@@ -579,7 +580,11 @@ namespace SystemTrading.Forms
         private void programOrderExecuteButton_Click(object sender, EventArgs e)
         {
             ProgramOrderManager.Instance.IsAutoProgramOrder = !ProgramOrderManager.Instance.IsAutoProgramOrder;
+            UpdateProgramOrderExecuteUI();
+        }
 
+        private void UpdateProgramOrderExecuteUI()
+        {
             bool isAutoProgramOrder = ProgramOrderManager.Instance.IsAutoProgramOrder;
             if (isAutoProgramOrder)
             {
@@ -649,6 +654,11 @@ namespace SystemTrading.Forms
             yield return new WaitForSeconds(1f);
             refreshButton.Enabled = true;
             refreshButton.Text = originalButtonText;
+        }
+        
+        private void restartButton_Click(object sender, EventArgs e)
+        {
+            ProgramManager.Restart();
         }
     }
 }

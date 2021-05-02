@@ -6,10 +6,28 @@ public class AccountInfo
 {
     public string AccountNumber { get; private set; }
 
+    private DateTime _todayStartDepositAfter2DayRefreshTime = DateTime.MinValue;
+    private long _todayStartDepositAfter2Day = 0;
     /// <summary>
     /// 금일 시작 D+2예수금
     /// </summary>
-    public long TodayStartDepositAfter2Day = 0;
+    public long TodayStartDepositAfter2Day
+    { 
+        get
+        {
+            if (_todayStartDepositAfter2DayRefreshTime.Date != ProgramConfig.NowTime.Date)
+            {
+                _todayStartDepositAfter2DayRefreshTime = ProgramConfig.NowTime;
+                _todayStartDepositAfter2Day = DepositAfter2Day;
+            }
+            return _todayStartDepositAfter2Day;
+        }
+        set
+        {
+            _todayStartDepositAfter2DayRefreshTime = ProgramConfig.NowTime;
+            _todayStartDepositAfter2Day = value;
+        }
+    }
 
     /// <summary>
     /// 예수금
@@ -66,7 +84,7 @@ public class AccountInfo
     /// <summary>
     /// 당일 손익률
     /// </summary>
-    public float TodayProfitRate => TodayStartDepositAfter2Day != 0 ? (TodayProfitAmount - TodayStartDepositAfter2Day) / (float)TodayStartDepositAfter2Day * 100f : 0f;
+    public float TodayProfitRate => TodayStartDepositAfter2Day != 0 ? (TodayProfitAmount / (float)TodayStartDepositAfter2Day) * 100f : -99f;
 
     /// <summary>
     /// 보유 종목 리스트

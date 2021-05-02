@@ -93,6 +93,7 @@ namespace SystemTrading.Forms
             this.kospiLabel = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.kiwoomCSButton = new System.Windows.Forms.Button();
+            this.restartButton = new System.Windows.Forms.Button();
             this.KGzeroCSButton = new System.Windows.Forms.Button();
             this.marketIndexUICheckBox = new System.Windows.Forms.CheckBox();
             this.kosdaq = new System.Windows.Forms.Label();
@@ -856,6 +857,7 @@ namespace SystemTrading.Forms
             // 
             this.panel1.BackColor = System.Drawing.Color.White;
             this.panel1.Controls.Add(this.kiwoomCSButton);
+            this.panel1.Controls.Add(this.restartButton);
             this.panel1.Controls.Add(this.KGzeroCSButton);
             this.panel1.Controls.Add(this.marketIndexUICheckBox);
             this.panel1.Controls.Add(this.kosdaq);
@@ -883,6 +885,20 @@ namespace SystemTrading.Forms
             this.kiwoomCSButton.Text = "키움 고객게시판";
             this.kiwoomCSButton.UseVisualStyleBackColor = false;
             this.kiwoomCSButton.Click += new System.EventHandler(this.kiwoomCSButton_Click);
+            // 
+            // restartButton
+            // 
+            this.restartButton.BackColor = System.Drawing.Color.White;
+            this.restartButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.restartButton.Font = new System.Drawing.Font("굴림", 8F);
+            this.restartButton.Location = new System.Drawing.Point(870, 0);
+            this.restartButton.Margin = new System.Windows.Forms.Padding(0);
+            this.restartButton.Name = "restartButton";
+            this.restartButton.Size = new System.Drawing.Size(75, 27);
+            this.restartButton.TabIndex = 26;
+            this.restartButton.Text = "재실행";
+            this.restartButton.UseVisualStyleBackColor = false;
+            this.restartButton.Click += new System.EventHandler(this.restartButton_Click);
             // 
             // KGzeroCSButton
             // 
@@ -1287,5 +1303,6 @@ namespace SystemTrading.Forms
         private System.Windows.Forms.DataGridViewTextBoxColumn 평가손익;
         private System.Windows.Forms.DataGridViewTextBoxColumn 상태;
         private System.Windows.Forms.DataGridViewButtonColumn 청산신청;
+        private System.Windows.Forms.Button restartButton;
     }
 }

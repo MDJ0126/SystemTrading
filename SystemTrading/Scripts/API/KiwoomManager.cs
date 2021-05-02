@@ -2,9 +2,40 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Windows.Forms;
+using SystemTrading.Forms;
 
 public partial class KiwoomManager : Singleton<KiwoomManager>
 {
+    // 시스템 점검 시간
+    public DateTime SystemCheckStartTime => ProgramConfig.NowTime.Date.AddHours(4).AddMinutes(25);
+    public DateTime SystemCheckEndTime => ProgramConfig.NowTime.Date.AddHours(5).AddMinutes(5);
+
+    // 장 시작 하기 전에 한 번 재실행 시간
+    public DateTime RestartMorningTime => ProgramConfig.NowTime.Date.AddHours(7).AddMinutes(00);
+
+    /// <summary>
+    /// API 실행 가능 시간인지?
+    /// </summary>
+    public bool IsAvailableAPIStartTime
+    { 
+        get
+        {
+            if (SystemCheckStartTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= SystemCheckEndTime)
+            {
+                return false;
+            }
+            else
+                return true;
+        }
+    }
+
+    /// <summary>
+    /// API 실행 여부
+    /// </summary>
+    public bool IsStaredAPI { get; private set; } = false;
+
     /// <summary>
     /// OpenAPI 컨트롤러
     /// (참고 : https://download.kiwoom.com/web/openapi/kiwoom_openapi_plus_devguide_ver_1.1.pdf)
@@ -30,12 +61,57 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
     private Action<bool> _onFinishedLogin;
 
     /// <summary>
+    /// API 종료
+    /// </summary>
+    public void StopAPI()
+    {
+        if (IsStaredAPI)
+        {
+            var apiController = FormManager.GetForm(eForm.APIController) as APIController;
+            if (apiController != null)
+            {
+                apiController.CloseForm();
+            }
+        }
+    }
+
+    /// <summary>
+    /// API 실행
+    /// </summary>
+    [STAThread]
+    private void StartAPI()
+    {
+        if (!IsStaredAPI)
+        {
+            StopAPI();
+            if (IsAvailableAPIStartTime)
+            {
+                Thread thread = new Thread(
+                    () =>
+                    {
+                        Application.Run(new APIController());
+                        HandlerKiwoomAPI.Instance.NotifyOnDisconnect();
+                    });
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                this.IsStaredAPI = true;
+            }
+        }
+    }
+
+    /// <summary>
     /// API 세팅
     /// </summary>
     /// <param name="axKHOpenAPI"></param>
     public void SetAPI(AxKHOpenAPI axKHOpenAPI)
     {
         // API를 View단에서 제공해서 따로 가져옴 (winform을 사용하면서 어쩔 수가 없는 부분이 있는 것 같음)
+        if (AxKHOpenAPI != null)
+        {
+            //AxKHOpenAPI.CommTerminate();
+            AxKHOpenAPI = null;
+            GC.Collect();
+        }
         this.AxKHOpenAPI = axKHOpenAPI;
     }
 
@@ -50,14 +126,14 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
             if (result == 0)
             {
                 Logger.Log("Open Login Form");
-                this.AxKHOpenAPI.OnReceiveTrData        += OnReceiveTransactionData;
-                this.AxKHOpenAPI.OnReceiveRealData      += OnReceiveRealData;
-                this.AxKHOpenAPI.OnReceiveChejanData    += OnReceiveChejanData;
-                this.AxKHOpenAPI.OnEventConnect         += OnEventConnect;
+                this.AxKHOpenAPI.OnReceiveTrData += OnReceiveTransactionData;
+                this.AxKHOpenAPI.OnReceiveRealData += OnReceiveRealData;
+                this.AxKHOpenAPI.OnReceiveChejanData += OnReceiveChejanData;
+                this.AxKHOpenAPI.OnEventConnect += OnEventConnect;
                 this.AxKHOpenAPI.OnReceiveRealCondition += OnReceiveRealCondition;
-                this.AxKHOpenAPI.OnReceiveTrCondition   += OnReceiveTrCondition;
-                this.AxKHOpenAPI.OnReceiveMsg           += OnReceiveMsg;
-                this.AxKHOpenAPI.OnReceiveConditionVer  += OnReceiveConditionVer;
+                this.AxKHOpenAPI.OnReceiveTrCondition += OnReceiveTrCondition;
+                this.AxKHOpenAPI.OnReceiveMsg += OnReceiveMsg;
+                this.AxKHOpenAPI.OnReceiveConditionVer += OnReceiveConditionVer;
                 _onFinishedLogin = onFinshed;
             }
             else
@@ -68,19 +144,18 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
         }
     }
 
-    /// <summary>
-    /// 로그아웃
-    /// </summary>
-    public void LogOut()
+    public void Clear()
     {
-        if (this.IsLogin)
-        {
-            LineNotify.SendMessage($"'{this.LoginInfo.UserName}'님의 계정이 시스템 트레이딩에서 로그아웃 처리되었습니다.");
-            this.LoginInfo.Clear();
-            DisconnectAllRealData();
-            Logger.Log("[Logout]");
-        }
+        // 로그인 정보 초기화
+        this.LoginInfo.Clear();
+
+        // 실시간 데이터 연결 해제
+        DisconnectAllRealData();
+
+        LineNotify.SendMessage($"'{this.LoginInfo.UserName}'님의 계정이 시스템 트레이딩에서 로그아웃 처리되었습니다.");
+        Logger.Log("[Logout]");
     }
+
     // 0부터 시작하면 안됨
     // 사용되는 스크린 번호가 200개가 넘어가면 예기치 못한 오류가 생길 수 있다고 한다.
     private const int SCREEN_AUTO_NUMBER_MIN = 1;
@@ -132,11 +207,10 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
     /// </summary>
     private void DisconnectAllRealData()
     {
-        for (int i = _scrNum; i > 5000; i--)
+        for (int i = 0; i > 2000; i--)
         {
-            this.AxKHOpenAPI.DisconnectRealData(i.ToString());
+            this.AxKHOpenAPI.DisconnectRealData(i.ToString("D4"));
         }
-        _scrNum = 5000;
     }
 
     /// <summary>
@@ -466,7 +540,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                 }
             }
         }
-        SystemTrading.Forms.ToastMessage.Show(e.sMsg);
+        ToastMessage.Show(e.sMsg);
     }
 
     protected override void Install()
@@ -475,6 +549,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
         RequestTransactionDatas = new List<TransactionData>();
         ResponseTransactionDatas = new List<TransactionData>();
         MultiThread.Start(RequestTransactionProcess);
+        StartAPI();
     }
 
     protected override void Release()

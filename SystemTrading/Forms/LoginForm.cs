@@ -27,14 +27,9 @@ namespace SystemTrading.Forms
         private void StartProcess()
         {
             // BI
-            ToastMessage.Show("반갑습니다.");
+            ToastMessage.Show("자동 매매 시스템을 시작합니다.");
 
-            // 1. API폼 열기
-            Thread thread = new Thread(OpenAPI);
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
-
-            // 2. 메인폼 열기
+            // 메인폼 열기
             MultiThread.Start(
                 () =>
                 {
@@ -45,16 +40,6 @@ namespace SystemTrading.Forms
                     ProgramManager.Realese();
                     Application.Exit();
                 });
-        }
-
-        /// <summary>
-        /// API폼 열기
-        /// </summary>
-        [STAThread]
-        private void OpenAPI()
-        {
-            Application.Run(new APIController());
-            HandlerKiwoomAPI.Instance.NotifyOnDisconnect();
         }
     }
 }

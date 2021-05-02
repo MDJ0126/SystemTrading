@@ -29,22 +29,10 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.logText = new System.Windows.Forms.Label();
             this.panel = new System.Windows.Forms.Panel();
             this.trCount = new System.Windows.Forms.Label();
+            this.logText = new System.Windows.Forms.Label();
             this.SuspendLayout();
-            // 
-            // logText
-            // 
-            this.logText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.logText.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.logText.Location = new System.Drawing.Point(0, 643);
-            this.logText.Name = "logText";
-            this.logText.Size = new System.Drawing.Size(1012, 14);
-            this.logText.TabIndex = 5;
-            this.logText.Text = "안내 문구 영역";
-            this.logText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // panel
             // 
@@ -61,12 +49,24 @@
             this.trCount.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.trCount.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.trCount.Location = new System.Drawing.Point(1738, 643);
+            this.trCount.Location = new System.Drawing.Point(1018, 643);
             this.trCount.Name = "trCount";
-            this.trCount.Size = new System.Drawing.Size(0, 14);
+            this.trCount.Size = new System.Drawing.Size(166, 14);
             this.trCount.TabIndex = 5;
             this.trCount.Text = "15/30";
             this.trCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // logText
+            // 
+            this.logText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.logText.Font = new System.Drawing.Font("맑은 고딕", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.logText.Location = new System.Drawing.Point(0, 643);
+            this.logText.Name = "logText";
+            this.logText.Size = new System.Drawing.Size(1012, 14);
+            this.logText.TabIndex = 5;
+            this.logText.Text = "안내 문구 영역";
+            this.logText.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MainForm
             // 

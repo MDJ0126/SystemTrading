@@ -21,6 +21,19 @@ namespace SystemTrading.Forms
             StartCoroutine("StartProcess");
         }
 
+        public void CloseForm()
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new MethodInvoker(CloseForm));
+            }
+            else
+            {
+                KiwoomManager.Instance.Clear();
+                Close();
+            }
+        }
+
         /// <summary>
         /// 메인 프로세스
         /// </summary>

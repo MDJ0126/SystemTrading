@@ -50,7 +50,7 @@ public static class Utils
     /// <typeparam name="T"></typeparam>
     /// <param name="name"></param>
     /// <returns></returns>
-    public static T FileLoad<T>(string name) where T : new()
+    public static T FileLoad<T>(string name)
     {
         try
         {
@@ -71,7 +71,7 @@ public static class Utils
         }
         catch
         {
-            return new T();
+            return default(T);
         }
     }
 
