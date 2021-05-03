@@ -122,7 +122,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     // 추천 매수 리스트
     public List<StockInfo> recommendeds = new List<StockInfo>();
 
-    // 금일 매수 리스트
+    // 금일 매도 리스트 (내역)
     private List<StockInfo> _sellStockInfos = new List<StockInfo>();
 
     private void Update()
@@ -140,6 +140,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
         }
 
         bool isTradingStart = true;
+        bool isTradingEnd = false;
 
         // 계좌 잔고 리스트
         var balanceInfos = AccountInfo.BalanceStocks;
@@ -156,6 +157,9 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 if (isTradingStart)
                 {
                     isTradingStart = false;
+                    isTradingEnd = true;
+                    recommendeds.Clear();
+                    _sellStockInfos.Clear();
 
                     // 모두 주문 취소하기
                     if (IsAutoProgramOrder)
@@ -177,22 +181,26 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     {
                         bool isBuy = false;
 
-                        // 조건: 거래 회전율이 50% 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
-                        if (stockInfo.TodayTradingRate >= 50f)
+                        // 조건: 당일 갱신 기준
+                        if (stockInfo.RefreshTime.Date == ProgramConfig.NowTime.Date)
                         {
-                            // 조건: 매수시 등락율 범위
-                            if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
+                            // 조건: 거래 회전율이 50% 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
+                            if (stockInfo.TodayTradingRate >= 50f)
                             {
-                                // 조건: 분당 성장률
-                                if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
+                                // 조건: 매수시 등락율 범위
+                                if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                                 {
-                                    isBuy = true;
-                                }
+                                    // 조건: 분당 성장률
+                                    if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
+                                    {
+                                        isBuy = true;
+                                    }
 
-                                // 조건: 급등주
-                                if (stockInfo.GrowthRatePerMinute >= 3f)
-                                {
-                                    isBuy = true;
+                                    // 조건: 급등주
+                                    if (stockInfo.GrowthRatePerMinute >= 3f)
+                                    {
+                                        isBuy = true;
+                                    }
                                 }
                             }
                         }
@@ -310,6 +318,20 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             else
             {
                 isTradingStart = true;
+                if (isTradingEnd)
+                {
+                    isTradingEnd = false;
+                    // 모두 주문 취소하기
+                    if (IsAutoProgramOrder)
+                    {
+                        for (int i = 0; i < balanceInfos.Count; i++)
+                        {
+                            var balanceStock = balanceInfos[i];
+                            if (balanceStock.BalanceStockState != eBalanceStockState.Have)
+                                OrderCancel(balanceStock.stockInfo);
+                        }
+                    }
+                }
             }
             Thread.Sleep(500);
         }
