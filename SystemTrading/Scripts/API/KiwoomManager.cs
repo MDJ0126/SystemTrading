@@ -335,9 +335,6 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     case eSendOrderType.신규매수:
                     case eSendOrderType.신규매도:
                         {
-                            if (sendOrderType == eSendOrderType.신규매수)
-                                accountInfo.AvailableMoney -= price * count;
-
                             if (balanceStock != null) balanceStock.SetOrderState(eBalanceStockState.RequestBuy);
                             this.AxKHOpenAPI.SendOrder(sendOrderType.ToString(), screenNumber, accountNumber, (int)sendOrderType, stockInfo.tradingSymbol, count, price, sendType.ToDescription(), "");
                         }
@@ -345,12 +342,6 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     case eSendOrderType.매수정정:
                     case eSendOrderType.매도정정:
                         {
-                            if (sendOrderType == eSendOrderType.매수정정)
-                            {
-                                accountInfo.AvailableMoney += balanceStock.OrderPrice;
-                                accountInfo.AvailableMoney -= price * count;
-                            }
-
                             if (balanceStock != null) balanceStock.SetOrderState(eBalanceStockState.RequestSell);
                             this.AxKHOpenAPI.SendOrder(sendOrderType.ToString(), screenNumber, this.LoginInfo.SelectAccount.AccountNumber, (int)sendOrderType, stockInfo.tradingSymbol, count, 0, sendType.ToDescription(), orderNumber);
                         }

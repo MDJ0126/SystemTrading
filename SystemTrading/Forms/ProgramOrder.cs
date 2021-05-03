@@ -290,13 +290,13 @@ namespace SystemTrading.Forms
                     switch (myStock.BalanceStockState)
                     {
                         case eBalanceStockState.RequestBuy:
-                            buttonName = "-";
+                            buttonName = "매수주문취소";
                             break;
                         case eBalanceStockState.Buying:
                             buttonName = "매수취소";
                             break;
                         case eBalanceStockState.RequestSell:
-                            buttonName = "-";
+                            buttonName = "매도주문취소";
                             break;
                         case eBalanceStockState.Selling:
                             buttonName = "매도취소";
@@ -493,6 +493,14 @@ namespace SystemTrading.Forms
                         ProgramOrderManager.Instance.OrderCancel(balanceStock.stockInfo);
                     }
                     else if (buttonName.Equals("매도취소"))
+                    {
+                        ProgramOrderManager.Instance.OrderCancel(balanceStock.stockInfo);
+                    }
+                    else if (buttonName.Equals("매수주문취소"))
+                    {
+                        ProgramOrderManager.Instance.OrderCancel(balanceStock.stockInfo);
+                    }
+                    else if (buttonName.Equals("매도주문취소"))
                     {
                         ProgramOrderManager.Instance.OrderCancel(balanceStock.stockInfo);
                     }

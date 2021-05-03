@@ -136,9 +136,8 @@ public class BalanceStock
     /// <summary>
     /// 매도 체결량 수정
     /// </summary>
-    public void SetSellCount(int waitOrderCount, int resultCount, int orderCount)
+    public void SetSellCount(int waitOrderCount)
     {
-        this.BuyingMoney = (BuyingMoney / orderCount) * waitOrderCount;
         this.HaveCnt = waitOrderCount;
         this.WaitOrderCount = waitOrderCount;
         if (waitOrderCount == 0)

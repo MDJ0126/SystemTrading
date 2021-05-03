@@ -204,8 +204,17 @@ public class AccountInfo
                 balanceStock = new BalanceStock(traingSymbol, 0, 0);
                 BalanceStocks.Add(balanceStock);
             }
-            balanceStock.SetOrder(screenNumber, isSendOrderSuccess, orderNumber, orderCount, orderPrice, waitOrderCnt, DateTime.MinValue);
-            balanceStock.SetOrderState(eBalanceStockState.Buying);
+
+            if (orderType.Contains("취소"))
+            {
+                balanceStock.InitializeOrderState();
+                BalanceStocks.Remove(balanceStock);
+            }
+            else
+            {
+                balanceStock.SetOrder(screenNumber, isSendOrderSuccess, orderNumber, orderCount, orderPrice, waitOrderCnt, DateTime.MinValue);
+                balanceStock.SetOrderState(eBalanceStockState.Buying);
+            }
         }
         else if (orderType.Contains("매도"))
         {
@@ -237,8 +246,8 @@ public class AccountInfo
             {
                 if (isEndTrading)
                 {
-                    //this.Deposit -= resultPrice - fees - tax;
-                    this.DepositAfter2Day -= resultPrice - fees - tax;
+                    this.DepositAfter2Day -= resultPrice - (fees + tax);
+                    this.AvailableMoney -= resultPrice - (fees + tax);
                 }
                 balanceStock.SetBuyCount(waitOrderCnt, resultCount, resultPrice);
             }
@@ -246,23 +255,21 @@ public class AccountInfo
             {
                 if (isEndTrading)
                 {
-                    //this.Deposit += resultPrice - fees - tax;
-                    this.DepositAfter2Day += resultPrice - fees - tax;
-                    this.AvailableMoney += resultPrice - fees - tax;
+                    this.DepositAfter2Day += resultPrice - (fees + tax);
+                    this.AvailableMoney += resultPrice - (fees + tax);
 
                     long oneStockBuyMoney = balanceStock.BuyingMoney / orderCount;  // 스톡 하나당 매입가
-                    long totalBuyMoney = oneStockBuyMoney * resultCount;            // 스톡 총매입가
 
-                    TodayProfitAmount += resultPrice - fees - tax - totalBuyMoney;  // 금일 손익금에 반영
+                    TodayProfitAmount += resultPrice - fees - tax - balanceStock.BuyingMoney;  // 금일 손익금에 반영
 
-                    var profit = resultPrice - fees - tax - totalBuyMoney;          // 금일 손익금
+                    var profit = resultPrice - fees - tax - balanceStock.BuyingMoney;          // 금일 손익금
                     var profitRate = profit / (float)balanceStock.BuyingMoney * 100f;// 금일 손익률
                     LineNotify.SendMessage($"{balanceStock.StockName}를 매도 체결되었습니다. 차익 : {profit:N0}원({profitRate:F2}%)");
-                    LineNotify.SendMessage($"oneStockBuyMoney: {oneStockBuyMoney}, totalBuyMoney: {totalBuyMoney}, resultPrice: {resultPrice}, fees: {fees}, tax: {tax}");
+                    LineNotify.SendMessage($"oneStockBuyMoney: {oneStockBuyMoney}, totalBuyMoney: {balanceStock.BuyingMoney}, resultPrice: {resultPrice}, fees: {fees}, tax: {tax}");
 
                     BalanceStocks.Remove(balanceStock);
                 }
-                balanceStock.SetSellCount(waitOrderCnt, resultCount, orderCount);
+                balanceStock.SetSellCount(waitOrderCnt);
             }
         }
         SaveAccountInfo();

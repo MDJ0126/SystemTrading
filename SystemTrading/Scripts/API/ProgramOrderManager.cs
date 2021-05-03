@@ -45,7 +45,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 한계선
     /// </summary>
-    public float LimitRate { get; set; } = 22.0f; //(%)
+    public float LimitRate { get; set; } = 20.0f; //(%)
 
     /// <summary>
     /// 매수 시도 기준 종목 개수
@@ -60,7 +60,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매도 최대 시점
     /// </summary>
-    public float MaxPriceRate { get; set; } = 27.5f; //(%)
+    public float MaxPriceRate { get; set; } = 25f; //(%)
 
     /// <summary>
     /// 매도 시점
@@ -139,6 +139,8 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             orderStockInfos.Add(stockInfo);
         }
 
+        bool isTradingStart = true;
+
         // 계좌 잔고 리스트
         var balanceInfos = AccountInfo.BalanceStocks;
         while (true)
@@ -150,6 +152,23 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             // 설정된 거래 시간 범위 기준으로 거래 진행
             if (_tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime)
             {
+                // 0. 최초 시작
+                if (isTradingStart)
+                {
+                    isTradingStart = false;
+
+                    // 모두 주문 취소하기
+                    if (IsAutoProgramOrder)
+                    {
+                        for (int i = 0; i < balanceInfos.Count; i++)
+                        {
+                            var balanceStock = balanceInfos[i];
+                            if (balanceStock.BalanceStockState != eBalanceStockState.Have)
+                                OrderCancel(balanceStock.stockInfo);
+                        }
+                    }
+                }
+
                 // 1. 매수 예정 리스트 체크
                 for (int i = 0; i < orderStockInfos.Count; i++)
                 {
@@ -157,19 +176,24 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     if (stockInfo != null)
                     {
                         bool isBuy = false;
-                        // 조건: 매수시 등락율 범위
-                        if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
-                        {
-                            // 조건: 분당 성장률
-                            if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
-                            {
-                                isBuy = true;
-                            }
 
-                            // 조건: 급등주
-                            if (stockInfo.GrowthRatePerMinute >= 3f)
+                        // 조건: 거래 회전율이 50% 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
+                        if (stockInfo.TodayTradingRate >= 50f)
+                        {
+                            // 조건: 매수시 등락율 범위
+                            if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                             {
-                                isBuy = true;
+                                // 조건: 분당 성장률
+                                if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
+                                {
+                                    isBuy = true;
+                                }
+
+                                // 조건: 급등주
+                                if (stockInfo.GrowthRatePerMinute >= 3f)
+                                {
+                                    isBuy = true;
+                                }
                             }
                         }
 
@@ -187,33 +211,38 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 // 1-1. 매수하기
                 if (IsAutoProgramOrder)
                 {
-                    if (AccountInfo != null)
+                    // 주문 진행 중인 경우에는 불가하도록
+                    bool isBuyAvailableState = !AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have);
+                    if (isBuyAvailableState)
                     {
-                        long useAvailableMoney = Math.Min(AccountInfo.AvailableMoney, (long)(AccountInfo.EstimatedAssets_Calc * 0.9f));
-                        // 사용 가능 금액이 총 평가 금액보다 50% 이상 많을 경우에 매수 시도
-                        // 계속 반복하다보면 1개씩 매입하는 비효율 현상이 생겨서 분기태움.(안전 장치)
-                        if (useAvailableMoney >= AccountInfo.EstimatedAssets_Calc * 0.5f)
+                        if (AccountInfo != null)
                         {
-                            if (TryStockSellCount <= recommendeds.Count)
+                            long useAvailableMoney = Math.Min(AccountInfo.AvailableMoney, (long)(AccountInfo.EstimatedAssets_Calc * 0.9f));
+                            // 사용 가능 금액이 총 평가 금액보다 50% 이상 많을 경우에 매수 시도
+                            // 계속 반복하다보면 1개씩 매입하는 비효율 현상이 생겨서 분기태움.(안전 장치)
+                            if (useAvailableMoney >= AccountInfo.EstimatedAssets_Calc * 0.5f)
                             {
-                                float sumGrowthRatePerMinute = 0f;
-                                for (int i = 0; i < recommendeds.Count; i++)
+                                if (TryStockSellCount <= recommendeds.Count)
                                 {
-                                    sumGrowthRatePerMinute += recommendeds[i].GrowthRatePerMinute;
-                                }
-
-                                for (int i = 0; i < recommendeds.Count; i++)
-                                {
-                                    var stockInfo = recommendeds[i];
-                                    // 매수 시도할 분배된 금액
-                                    int buyMoney = (int)(useAvailableMoney * (stockInfo.GrowthRatePerMinute / sumGrowthRatePerMinute));
-                                    // 매수 개수
-                                    int buyCount = buyMoney / stockInfo.StockPrice;
-                                    // 매수
-                                    if (buyCount > 0 && AccountInfo.BalanceStocks.Count < MaxHaveStockCount)
+                                    float sumGrowthRatePerMinute = 0f;
+                                    for (int i = 0; i < recommendeds.Count; i++)
                                     {
-                                        OrderBuy(stockInfo, buyCount);
-                                        _sellStockInfos.Add(stockInfo);
+                                        sumGrowthRatePerMinute += recommendeds[i].GrowthRatePerMinute;
+                                    }
+
+                                    for (int i = 0; i < recommendeds.Count; i++)
+                                    {
+                                        var stockInfo = recommendeds[i];
+                                        // 매수 시도할 분배된 금액
+                                        int buyMoney = (int)(useAvailableMoney * (stockInfo.GrowthRatePerMinute / sumGrowthRatePerMinute));
+                                        // 매수 개수
+                                        int buyCount = buyMoney / stockInfo.StockPrice;
+                                        // 매수
+                                        if (buyCount > 0 && AccountInfo.BalanceStocks.Count < MaxHaveStockCount)
+                                        {
+                                            OrderBuy(stockInfo, buyCount);
+                                            _sellStockInfos.Add(stockInfo);
+                                        }
                                     }
                                 }
                             }
@@ -277,6 +306,10 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                     }
                 }
+            }
+            else
+            {
+                isTradingStart = true;
             }
             Thread.Sleep(500);
         }
