@@ -239,6 +239,11 @@ public class AccountInfo
     public void TradingStock(string traingSymbol, int resultCount, long resultPrice, int waitOrderCnt, int orderCount, string orderType, long fees, long tax)
     {
         bool isEndTrading = waitOrderCnt == 0;  // 거래가 완전히 끝났는지?
+        if (isEndTrading)
+        {
+            this.DepositAfter2Day -= fees + tax;
+            this.AvailableMoney -= fees + tax;
+        }
         BalanceStock balanceStock = GetMyBalanceStock(traingSymbol);
         if (balanceStock != null)
         {
@@ -246,8 +251,8 @@ public class AccountInfo
             {
                 if (isEndTrading)
                 {
-                    this.DepositAfter2Day -= resultPrice - (fees + tax);
-                    this.AvailableMoney -= resultPrice - (fees + tax);
+                    this.DepositAfter2Day -= resultPrice;
+                    this.AvailableMoney -= resultPrice;
                 }
                 balanceStock.SetBuyCount(waitOrderCnt, resultCount, resultPrice);
             }
@@ -255,15 +260,14 @@ public class AccountInfo
             {
                 if (isEndTrading)
                 {
-                    this.DepositAfter2Day += resultPrice - (fees + tax);
-                    this.AvailableMoney += resultPrice - (fees + tax);
+                    this.DepositAfter2Day += resultPrice;
+                    this.AvailableMoney += resultPrice;
 
-                    long oneStockBuyMoney = balanceStock.BuyingMoney / orderCount;  // 스톡 하나당 매입가
+                    long oneStockBuyMoney = balanceStock.BuyingMoney / orderCount;              // 스톡 하나당 매입가
+                    TodayProfitAmount += resultPrice - fees - tax - balanceStock.BuyingMoney;   // 금일 손익금에 반영
 
-                    TodayProfitAmount += resultPrice - fees - tax - balanceStock.BuyingMoney;  // 금일 손익금에 반영
-
-                    var profit = resultPrice - fees - tax - balanceStock.BuyingMoney;          // 금일 손익금
-                    var profitRate = profit / (float)balanceStock.BuyingMoney * 100f;// 금일 손익률
+                    var profit = resultPrice - fees - tax - balanceStock.BuyingMoney;           // 종목 손익금
+                    var profitRate = profit / (float)balanceStock.BuyingMoney * 100f;           // 종목 손익률
                     LineNotify.SendMessage($"{balanceStock.StockName}를 매도 체결되었습니다. 차익 : {profit:N0}원({profitRate:F2}%)");
                     LineNotify.SendMessage($"oneStockBuyMoney: {oneStockBuyMoney}, totalBuyMoney: {balanceStock.BuyingMoney}, resultPrice: {resultPrice}, fees: {fees}, tax: {tax}");
 

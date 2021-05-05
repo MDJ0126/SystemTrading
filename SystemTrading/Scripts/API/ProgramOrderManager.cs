@@ -102,10 +102,10 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// </summary>
     private void ResetTimer()
     {
-        // 프로그램 자동 거래 시간 금일 오전 9시 10분 ~ 오후 2시 45분까지
+        // 프로그램 자동 거래 시간 금일 오전 9시 10분 ~ 오후 2시 30분까지
         _tradingStartTime = ProgramConfig.NowTime.Date.AddHours(9).AddMinutes(00);
-        _tradingEndTime = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(45);
-        _allSellTime = ProgramConfig.NowTime.Date.AddHours(15).AddMinutes(10);
+        _tradingEndTime = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
+        _allSellTime = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
         _sellStockInfos.Clear();
     }
 
@@ -184,8 +184,8 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         // 조건: 당일 갱신 기준
                         if (stockInfo.RefreshTime.Date == ProgramConfig.NowTime.Date)
                         {
-                            // 조건: 거래 회전율이 50% 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
-                            if (stockInfo.TodayTradingRate >= 50f)
+                            // 조건: 거래 회전율이 특정 퍼센트 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
+                            if (stockInfo.TodayTradingRate >= 15f)
                             {
                                 // 조건: 매수시 등락율 범위
                                 if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
