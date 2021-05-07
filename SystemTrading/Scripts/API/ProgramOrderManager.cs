@@ -185,7 +185,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         if (stockInfo.RefreshTime.Date == ProgramConfig.NowTime.Date)
                         {
                             // 조건: 거래 회전율이 특정 퍼센트 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
-                            if (stockInfo.TodayTradingRate >= 15f)
+                            if (stockInfo.TodayTradingRate >= 7.5f)
                             {
                                 // 조건: 매수시 등락율 범위
                                 if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
