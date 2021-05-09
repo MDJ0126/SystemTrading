@@ -7,67 +7,62 @@ using System.Collections.Generic;
 [Serializable]
 public class StockInfo
 {
-    [Serializable]
-    private class GrowthRate
+    private class UpDownRateRecord
     {
         /// <summary>
-        /// 최근 1분 동안 평균 등락률
+        /// 최근 1분 사이 가장 오래된 기록
         /// </summary>
-        public float AveragePerMinute = 0f;
+        public float? OneMinuteAgoRecord
+        { 
+            get
+            {
+                TrimRecord();
+                if (_rateRecordQueue.Count > 0)
+                    return _rateRecordQueue.Peek().rate;
+                else
+                    return null;
+            }
+        }
 
-        /// <summary>
-        /// 최근 1분 간 기록을 담는 구조체
-        /// </summary>
-        [Serializable]
-        private struct GrowthRateRecord
+        private struct RateRecord
         {
             public DateTime inputTime;
             public float rate;
 
-            public GrowthRateRecord(DateTime inputTime, float rate)
+            public RateRecord(DateTime inputTime, float rate)
             {
                 this.inputTime = inputTime;
                 this.rate = rate;
             }
         }
-        private Queue<GrowthRateRecord> _growthRateRecordQueue = null;
+        
+        // 기록 저장큐
+        private Queue<RateRecord> _rateRecordQueue = new Queue<RateRecord>();
 
-        private DateTime _refreshedTime = DateTime.MinValue;
-
-        public int QueueCount => _growthRateRecordQueue?.Count ?? 0;
-
-        public void AddRate(float growthRate)
+        /// <summary>
+        /// 기록 추가
+        /// </summary>
+        /// <param name="currentRate"></param>
+        public void AddRecord(float currentRate)
         {
-            if (_growthRateRecordQueue == null) _growthRateRecordQueue = new Queue<GrowthRateRecord>();
+            _rateRecordQueue.Enqueue(new RateRecord(ProgramConfig.NowTime, currentRate));
+            TrimRecord();
+        }
 
-            var nowTime = ProgramConfig.NowTime;
-
-            // 1분 이상 지난 기록은 제거
-            var minuteAgo = nowTime.AddMinutes(-1f);    // 1분 전 변수 캐싱
-            while (_growthRateRecordQueue.Count > 0)
+        /// <summary>
+        /// 1분 이상 지난 기록은 제거
+        /// </summary>
+        private void TrimRecord()
+        {
+            var minuteAgo = ProgramConfig.NowTime.AddMinutes(-1f);    // 1분 전 변수 캐싱
+            while (_rateRecordQueue.Count > 0)
             {
-                GrowthRateRecord peek = _growthRateRecordQueue.Peek();
+                RateRecord peek = _rateRecordQueue.Peek();
                 if (minuteAgo > peek.inputTime)
-                    _growthRateRecordQueue.Dequeue();
+                    _rateRecordQueue.Dequeue();
                 else
                     break;
             }
-
-            // 새로운 기록 입력하기
-            _growthRateRecordQueue.Enqueue(new GrowthRateRecord(nowTime, growthRate));
-
-            // 최근 1분 평균 구하기
-            float sumRate = 0f;
-            int count = 0;
-
-            var enumerator = _growthRateRecordQueue.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                sumRate += enumerator.Current.rate;
-                ++count;
-            }
-
-            this.AveragePerMinute = sumRate / count;
         }
     }
 
@@ -142,12 +137,10 @@ public class StockInfo
     public long UpDownPrice { get; private set; } = 0;
 
     // 분당 평균 등락률
-    /*[NonSerialized] */private GrowthRate _growthRate = new GrowthRate();
+    [NonSerialized] private UpDownRateRecord _rateRecord = new UpDownRateRecord();
 
     // 현재 등락률
     private float _currRate = 0f;
-
-    private float _prevRate = 0f;
 
     /// <summary>
     /// 등락률
@@ -157,10 +150,8 @@ public class StockInfo
         get { return _currRate; }
         set
         {
-            _prevRate = _currRate;
             _currRate = value;
-
-            _growthRate.AddRate(_currRate - _prevRate);
+            _rateRecord.AddRecord(_currRate);
         }
     }
 
@@ -193,12 +184,17 @@ public class StockInfo
     {
         get
         {
-            // 평균 등락률
-            return _growthRate?.AveragePerMinute ?? 0f;
+            var oneMinuteAgoRecord = _rateRecord?.OneMinuteAgoRecord;
+            if (oneMinuteAgoRecord == null)
+            {
+                return 0f;
+            }
+            else
+            {
+                return _currRate - oneMinuteAgoRecord.Value;
+            }
         }
     }
-
-    public int RateQueueCount => _growthRate?.QueueCount ?? 0;
 
     public Dictionary<eOrderType, OrderInfo> OrderInfos { get; private set; } = new Dictionary<eOrderType, OrderInfo>();
 
@@ -219,14 +215,14 @@ public class StockInfo
 
     public StockInfo()
     {
-        RefreshTime = ProgramConfig.NowTime;
+        this.RefreshTime = ProgramConfig.NowTime;
     }
 
     public StockInfo(string tradingSymbol, string name)
     {
+        this.RefreshTime = ProgramConfig.NowTime;
         this.tradingSymbol = tradingSymbol;
         this.Name = name;
-        RefreshTime = ProgramConfig.NowTime;
     }
 
     /// <summary>
@@ -238,13 +234,13 @@ public class StockInfo
     /// <param name="tradingVolumeStr">거래량</param>
     public void SetPriceData(string stockPriceStr, string upDownPriceStr, string upDownPriceRateStr, string tradingVolumeStr, string pivotPrice = "")
     {
+        this.RefreshTime = ProgramConfig.NowTime;
         this.StockPrice = Math.Abs(int.Parse(stockPriceStr));
         this.UpDownPrice = long.Parse(upDownPriceStr);
         this.UpDownRate = float.Parse(upDownPriceRateStr);
         this.tradingVolume = long.Parse(tradingVolumeStr);
         if (!string.IsNullOrEmpty(pivotPrice))
             this._pivotPrice = int.Parse(pivotPrice);
-        RefreshTime = ProgramConfig.NowTime;
         _onChangedData?.Invoke();
     }
 
@@ -372,7 +368,7 @@ public class StockInfo
                 this.StockPrice = stockInfo.StockPrice;
                 this.UpDownPrice = stockInfo.UpDownPrice;
                 this.UpDownRate = stockInfo.UpDownRate;
-                this._growthRate = stockInfo._growthRate;
+                this._rateRecord = stockInfo._rateRecord;
                 this.tradingVolume = stockInfo.tradingVolume;
                 this.TodayTradingRate = stockInfo.TodayTradingRate;
                 this._currRate = stockInfo._currRate;

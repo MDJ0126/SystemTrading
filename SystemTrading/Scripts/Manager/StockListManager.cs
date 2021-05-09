@@ -230,18 +230,6 @@ public class StockListManager : Singleton<StockListManager>
                             stock.LoadDataApply(loadStock);
                     }
                 }
-
-                // 디버깅 체크 구간
-                int maxRateQueue = 0;
-                StockInfo stockInfo = null;
-                for (int i = 0; i < stockInfoList.Count; i++)
-                {
-                    if (maxRateQueue < stockInfoList[i].RateQueueCount)
-                    {
-                        maxRateQueue = stockInfoList[i].RateQueueCount;
-                        stockInfo = stockInfoList[i];
-                    }
-                }
                 _isFileUse = false;
             });
         }

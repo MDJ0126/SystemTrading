@@ -175,7 +175,7 @@ namespace SystemTrading.Forms
         private List<StockDataByGrid> _stockDataByGrids = null;
 
         /// <summary>
-        /// 주식 리스트 UI 업데이트
+        /// 전체 종목 리스트 UI 업데이트
         /// </summary>
         private void UpdateAllStockDataGridViewUI()
         {
@@ -206,7 +206,7 @@ namespace SystemTrading.Forms
         private List<StockDataByGrid> _recommendStockDataByGrids = new List<StockDataByGrid>();
 
         /// <summary>
-        /// 추천 주식 리스트 UI 업데이트
+        /// 추천 종목 리스트 UI 업데이트
         /// </summary>
         private void UpdateRecommendStockDataGridViewUI()
         {

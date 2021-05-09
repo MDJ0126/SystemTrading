@@ -40,7 +40,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 시도 최소 등락율
     /// </summary>
-    public float StartRate { get; set; } = 1.5f; //(%)
+    public float StartRate { get; set; } = 0f; //(%)
 
     /// <summary>
     /// 매수 한계선
@@ -50,7 +50,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 시도 기준 종목 개수
     /// </summary>
-    public byte TryStockSellCount { get; set; } = 4; //(개)
+    public byte TryStockSellCount { get; set; } = 3; //(개)
 
     /// <summary>
     /// 손실 제한률
@@ -103,9 +103,9 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     private void ResetTimer()
     {
         // 프로그램 자동 거래 시간 금일 오전 9시 10분 ~ 오후 2시 30분까지
-        _tradingStartTime = ProgramConfig.NowTime.Date.AddHours(9).AddMinutes(00);
-        _tradingEndTime = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
-        _allSellTime = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
+        _tradingStartTime   = ProgramConfig.NowTime.Date.AddHours(9).AddMinutes(00);
+        _tradingEndTime     = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
+        _allSellTime        = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
         _sellStockInfos.Clear();
     }
 
@@ -184,23 +184,19 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         // 조건: 당일 갱신 기준
                         if (stockInfo.RefreshTime.Date == ProgramConfig.NowTime.Date)
                         {
-                            // 조건: 거래 회전율이 특정 퍼센트 이상인 경우에 매수 (낮은 것 샀다가 안 팔리는 이슈가 있었음)
-                            if (stockInfo.TodayTradingRate >= 7.5f)
+                            // 조건: 매수시 등락율 범위
+                            if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                             {
-                                // 조건: 매수시 등락율 범위
-                                if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
+                                // 조건: 급등주
+                                if (stockInfo.GrowthRatePerMinute >= 3f)
                                 {
-                                    // 조건: 분당 성장률
-                                    if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
-                                    {
-                                        isBuy = true;
-                                    }
+                                    isBuy = true;
+                                }
 
-                                    // 조건: 급등주
-                                    if (stockInfo.GrowthRatePerMinute >= 3f)
-                                    {
-                                        isBuy = true;
-                                    }
+                                // 조건: 분당 성장률 1%이상일 때
+                                if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
+                                {
+                                    isBuy = true;
                                 }
                             }
                         }
