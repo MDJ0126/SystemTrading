@@ -78,7 +78,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     public long LimitCount { get; set; } = 20;  //(개)
 
     /// <summary>
-    /// 최대 보유 주식 개수
+    /// 잔고 최대 보유 종목 개수
     /// </summary>
     public sbyte MaxHaveStockCount { get; set; } = 10; //(개)
 
@@ -127,6 +127,9 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
 
     private void Update()
     {
+        // 매수 시도할 리스트 임시 저장
+        List<StockInfo> tempBuyList = new List<StockInfo>();
+
         // 매도 리스트
         List<BalanceStock> sellStocks = new List<BalanceStock>();
 
@@ -215,34 +218,42 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 // 1-1. 매수하기
                 if (IsAutoProgramOrder)
                 {
-                    // 주문 진행 중인 경우에는 불가하도록
+                    // 주문 진행 중인 경우에는 불가하도록 (완전히 계산되지 않을 때는 엉뚱하게 계속 주문하게됨. 이를 방지)
                     bool isBuyAvailableState = !AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have);
                     if (isBuyAvailableState)
                     {
                         if (AccountInfo != null)
                         {
-                            long useAvailableMoney = Math.Min(AccountInfo.AvailableMoney, (long)(AccountInfo.EstimatedAssets_Calc * 0.9f));
+                            long useAvailableMoney = AccountInfo.AvailableMoney;
                             // 사용 가능 금액이 총 평가 금액보다 50% 이상 많을 경우에 매수 시도
                             // 계속 반복하다보면 1개씩 매입하는 비효율 현상이 생겨서 분기태움.(안전 장치)
                             if (useAvailableMoney >= AccountInfo.EstimatedAssets_Calc * 0.5f)
                             {
                                 if (TryStockSellCount <= recommendeds.Count)
                                 {
-                                    float sumGrowthRatePerMinute = 0f;
+                                    // 잔고 최대 보유 가능 종목 개수 넘지 않도록 처리
+                                    tempBuyList.Clear();
                                     for (int i = 0; i < recommendeds.Count; i++)
                                     {
-                                        sumGrowthRatePerMinute += recommendeds[i].GrowthRatePerMinute;
+                                        if (AccountInfo.BalanceStocks.Count + i < MaxHaveStockCount)
+                                            tempBuyList.Add(recommendeds[i]);
                                     }
 
-                                    for (int i = 0; i < recommendeds.Count; i++)
+                                    float sumGrowthRatePerMinute = 0f;
+                                    for (int i = 0; i < tempBuyList.Count; i++)
                                     {
-                                        var stockInfo = recommendeds[i];
+                                        sumGrowthRatePerMinute += tempBuyList[i].GrowthRatePerMinute;
+                                    }
+
+                                    for (int i = 0; i < tempBuyList.Count; i++)
+                                    {
+                                        var stockInfo = tempBuyList[i];
                                         // 매수 시도할 분배된 금액
                                         int buyMoney = (int)(useAvailableMoney * (stockInfo.GrowthRatePerMinute / sumGrowthRatePerMinute));
                                         // 매수 개수
                                         int buyCount = buyMoney / stockInfo.StockPrice;
                                         // 매수
-                                        if (buyCount > 0 && AccountInfo.BalanceStocks.Count < MaxHaveStockCount)
+                                        if (buyCount > 0)
                                         {
                                             OrderBuy(stockInfo, buyCount);
                                             _sellStockInfos.Add(stockInfo);
