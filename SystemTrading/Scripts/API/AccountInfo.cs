@@ -269,13 +269,15 @@ public class AccountInfo
                     var profit = resultPrice - fees - tax - balanceStock.BuyingMoney;           // 종목 손익금
                     var profitRate = profit / (float)balanceStock.BuyingMoney * 100f;           // 종목 손익률
                     LineNotify.SendMessage($"\n[{balanceStock.StockName}] 매도 체결되었습니다." +
-                                            $"\n차익=> {profit:N0}원({profitRate:F2}%)" +
-                                            $"\n=====상세명세서======" +
-                                            $"\n종목 1개 매입가: {oneStockBuyMoney:N0}원" +
+                                            $"\n======상세명세서======" +
+                                            $"\n종목 개당 매입가: {oneStockBuyMoney:N0}원" +
+                                            $"\n매입 개수: {orderCount:N0}개" +
                                             $"\n총 매입가: {balanceStock.BuyingMoney:N0}원" +
                                             $"\n총 매도가: {resultPrice:N0}원" +
                                             $"\n거래세: {fees:N0}원" +
-                                            $"\n세금: {tax:N0}원");
+                                            $"\n세금: {tax:N0}원" +
+                                            $"\n======================" +
+                                            $"\n차익=> {profit:N0}원({profitRate:F2}%)");
 
                     BalanceStocks.Remove(balanceStock);
                 }
