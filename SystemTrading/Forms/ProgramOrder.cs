@@ -226,7 +226,7 @@ namespace SystemTrading.Forms
                 int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : recommendDataGridView.FirstDisplayedScrollingRowIndex;
                 //int selectIndex = recommendDataGridView.CurrentCell?.RowIndex ?? -1;
                 //recommendDataGridView.DataSource = _recommendStockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
-                recommendDataGridView.DataSource = _recommendStockDataByGrids.OrderByDescending(a => a.Score);
+                recommendDataGridView.DataSource = _recommendStockDataByGrids;
                 //if (recommendDataGridView.Rows.Count > selectIndex && selectIndex >= 0)
                 //    recommendDataGridView.Rows[selectIndex].Selected = true;
                 recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
