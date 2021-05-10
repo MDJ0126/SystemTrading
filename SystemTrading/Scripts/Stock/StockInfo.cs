@@ -151,7 +151,7 @@ public class StockInfo
         set
         {
             _currRate = value;
-            _rateRecord.AddRecord(_currRate);
+            _rateRecord?.AddRecord(_currRate);
         }
     }
 
