@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 1.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 3.0f;
 
     /// <summary>
     /// 최대 매수 시도 개수
@@ -196,12 +196,12 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                             {
                                 // 조건: 급등주
-                                if (stockInfo.GrowthRatePerMinute >= 3f)
+                                if (stockInfo.GrowthRatePerMinute >= 5f)
                                 {
                                     isBuy = true;
                                 }
 
-                                // 조건: 분당 성장률 1%이상일 때
+                                // 조건: 분당 성장률 3%이상일 때
                                 if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                                 {
                                     isBuy = true;
@@ -328,9 +328,12 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     var balanceStock = balanceStocks[i];
                     if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
                     {
-                        // 5분 이상인 경우 취소 처리
-                        if (balanceStock.OrderTime.AddMinutes(5) <= ProgramConfig.NowTime)
-                            OrderCancel(balanceStock.stockInfo);
+                        // 10분 이상인 경우 취소 처리
+                        if (balanceStock.OrderTime != null)
+                        {
+                            if (balanceStock.OrderTime.Value.AddMinutes(10) <= ProgramConfig.NowTime)
+                                OrderCancel(balanceStock.stockInfo);
+                        }
                     }
                 }
             }

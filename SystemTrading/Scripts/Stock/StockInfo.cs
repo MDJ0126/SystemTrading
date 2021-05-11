@@ -18,9 +18,12 @@ public class StockInfo
             {
                 TrimRecord();
                 if (_rateRecordQueue.Count > 0)
-                    return _rateRecordQueue.Peek().rate;
-                else
-                    return null;
+                {
+                    // '분'이 다를 때 1분 간 기록을 측정했다고 간주
+                    if (_rateRecordQueue.Peek().inputTime.Minute != ProgramConfig.NowTime.Minute)
+                        return _rateRecordQueue.Peek().rate;
+                }
+                return null;
             }
         }
 

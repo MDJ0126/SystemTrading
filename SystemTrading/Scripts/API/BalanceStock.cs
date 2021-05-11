@@ -45,7 +45,7 @@ public class BalanceStock
     /// <summary>
     /// 주문 시간
     /// </summary>
-    public DateTime OrderTime { get; set; } = DateTime.MinValue;
+    public DateTime? OrderTime { get; set; } = null;
 
     /// <summary>
     /// 체결 이후 구매해서 가지고 있기 시작한 시간
@@ -164,7 +164,7 @@ public class BalanceStock
         this.OrderCount = 0;
         this.OrderPrice = 0;
         this.WaitOrderCount = 0;
-        this.OrderTime = DateTime.MinValue;
+        this.OrderTime = null;
     }
 
     /// <summary>
