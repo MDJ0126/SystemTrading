@@ -19,8 +19,8 @@ public class StockInfo
                 TrimRecord();
                 if (_rateRecordQueue.Count > 0)
                 {
-                    // '분'이 다를 때 1분 간 기록을 측정했다고 간주
-                    if (_rateRecordQueue.Peek().inputTime.Minute != ProgramConfig.NowTime.Minute)
+                    // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
+                    if (ProgramConfig.StartUpTimeSeconds > 60f)
                         return _rateRecordQueue.Peek().rate;
                 }
                 return null;
@@ -190,14 +190,25 @@ public class StockInfo
             var oneMinuteAgoRecord = _rateRecord?.OneMinuteAgoRecord;
             if (oneMinuteAgoRecord == null)
             {
+                if (_cachingGrowthRatePerMinute != 0f)
+                {
+                    if (RefreshTime >= ProgramConfig.NowTime.AddMinutes(-1f))
+                    {
+                        return _cachingGrowthRatePerMinute;
+                    }
+                }
                 return 0f;
             }
             else
             {
-                return _currRate - oneMinuteAgoRecord.Value;
+                _cachingGrowthRatePerMinute = _currRate - oneMinuteAgoRecord.Value;
+                return _cachingGrowthRatePerMinute;
             }
         }
     }
+
+    // 재실행 때를 위해 '분당 성장률' 캐싱
+    private float _cachingGrowthRatePerMinute = 0f;
 
     public Dictionary<eOrderType, OrderInfo> OrderInfos { get; private set; } = new Dictionary<eOrderType, OrderInfo>();
 

@@ -60,7 +60,12 @@ public static class ProgramConfig
     private static DateTime _serverTime = DateTime.Now;
     private static DateTime _refrashedTime = DateTime.Now;
 
-
+    /// <summary>
+    /// 프로그램 지금까지 실행되고 있던 시간
+    /// </summary>
+    public static double StartUpTimeSeconds { get { return (DateTime.Now -_startTime).TotalSeconds; } }
+    private static DateTime _startTime = DateTime.Now;
+    
     private static DateTime _marketEndTime = DateTime.MinValue;
     /// <summary>
     /// 장 시작 또는 종료까지 남은 시간(초)
