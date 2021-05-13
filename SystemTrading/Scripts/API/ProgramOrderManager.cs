@@ -166,7 +166,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 {
                     isTradingStart = false;
                     isTradingEnd = true;
-                    recommendeds.Clear();
                     _sellStockInfos.Clear();
 
                     // 모두 주문 취소하기
