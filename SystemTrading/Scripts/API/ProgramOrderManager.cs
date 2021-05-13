@@ -55,7 +55,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 손실 제한률
     /// </summary>
-    public float StopLoss { get; set; } = 2.5f; //(%)
+    public float StopLoss { get; set; } = 3.5f; //(%)
 
     /// <summary>
     /// 매도 최대 시점
@@ -194,12 +194,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             // 조건: 매수시 등락율 범위
                             if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                             {
-                                // 조건: 급등주
-                                if (stockInfo.GrowthRatePerMinute >= 5f)
-                                {
-                                    isBuy = true;
-                                }
-
                                 // 조건: 분당 성장률 3%이상일 때
                                 if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                                 {
@@ -290,16 +284,16 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         //}
 
                         // 조건3: 특정 손익율 도달하는 경우
-                        if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
-                        {
-                            isSell = true;
-                        }
+                        //if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
+                        //{
+                        //    isSell = true;
+                        //}
 
                         // 조건4: 보유 시간이 20분 이상 지나면 목표치를 절반으로 줄임
-                        if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
-                        {
-                            isSell = true;
-                        }
+                        //if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
+                        //{
+                        //    isSell = true;
+                        //}
 
                         if (isSell)
                         {
