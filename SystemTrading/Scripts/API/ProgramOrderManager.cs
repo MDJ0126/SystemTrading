@@ -50,12 +50,12 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 시도 기준 종목 개수
     /// </summary>
-    public byte TryStockSellCount { get; set; } = 3; //(개)
+    public byte TryStockSellCount { get; set; } = 2; //(개)
 
     /// <summary>
     /// 손실 제한률
     /// </summary>
-    public float StopLoss { get; set; } = 3.5f; //(%)
+    public float StopLoss { get; set; } = 1.5f; //(%)
 
     /// <summary>
     /// 매도 최대 시점
@@ -65,7 +65,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매도 시점
     /// </summary>
-    public float SellProfit { get; set; } = 2.5f; //(%)
+    public float SellProfit { get; set; } = 1.5f; //(%)
 
     /// <summary>
     /// 매입 제한 금액
@@ -284,16 +284,16 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         //}
 
                         // 조건3: 특정 손익율 도달하는 경우
-                        //if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
-                        //{
-                        //    isSell = true;
-                        //}
+                        if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
+                        {
+                            isSell = true;
+                        }
 
                         // 조건4: 보유 시간이 20분 이상 지나면 목표치를 절반으로 줄임
-                        //if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
-                        //{
-                        //    isSell = true;
-                        //}
+                        if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
+                        {
+                            isSell = true;
+                        }
 
                         if (isSell)
                         {
