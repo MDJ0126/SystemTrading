@@ -413,13 +413,16 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     {
         if (AccountInfo != null)
         {
-            if (AccountInfo.AvailableMoney >= count * stockInfo.StockPrice)
+            if (!AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have))
             {
-                KiwoomManager.Instance.SendOrder(AccountInfo.AccountNumber, eSendOrderType.신규매수, stockInfo, count, 0, eSendType.시장가);
-                LineNotify.SendMessage($"[{stockInfo.Name}] 매수 신청을 했습니다.");
+                if (AccountInfo.AvailableMoney >= count * stockInfo.StockPrice)
+                {
+                    KiwoomManager.Instance.SendOrder(AccountInfo.AccountNumber, eSendOrderType.신규매수, stockInfo, count, 0, eSendType.시장가);
+                    LineNotify.SendMessage($"[{stockInfo.Name}] 매수 신청을 했습니다. (현재 등락율: {stockInfo.UpDownRate:F2}%)");
+                }
+                else
+                    LineNotify.SendMessage($"예수금 부족으로 [{stockInfo.Name}] 매수 신청 실패했습니다.");
             }
-            else
-                LineNotify.SendMessage($"예수금 부족으로 [{stockInfo.Name}] 매수 신청 실패했습니다.");
         }
     }
 
@@ -431,7 +434,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
         if (AccountInfo != null)
         {
             KiwoomManager.Instance.SendOrder(AccountInfo.AccountNumber, eSendOrderType.신규매도, stockInfo, count, 0, eSendType.시장가);
-            LineNotify.SendMessage($"[{stockInfo.Name}] 매도 신청을 했습니다.");
+            LineNotify.SendMessage($"[{stockInfo.Name}] 매도 신청을 했습니다. (현재 등락율: {stockInfo.UpDownRate:F2}%)");
         }
     }
 

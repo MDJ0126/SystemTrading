@@ -127,7 +127,7 @@ public class StockInfo
     /// <summary>
     /// 기준가
     /// </summary>
-    public int _pivotPrice = 0;
+    public int pivotPrice = 0;
 
     /// <summary>
     /// 현재가
@@ -254,7 +254,7 @@ public class StockInfo
         this.UpDownRate = float.Parse(upDownPriceRateStr);
         this.tradingVolume = long.Parse(tradingVolumeStr);
         if (!string.IsNullOrEmpty(pivotPrice))
-            this._pivotPrice = int.Parse(pivotPrice);
+            this.pivotPrice = int.Parse(pivotPrice);
         _onChangedData?.Invoke();
     }
 
