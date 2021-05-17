@@ -40,7 +40,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 시도 최소 등락율
     /// </summary>
-    public float StartRate { get; set; } = 0f; //(%)
+    public float StartRate { get; set; } = 5f; //(%)
 
     /// <summary>
     /// 매수 한계선
@@ -55,7 +55,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 손실 제한률
     /// </summary>
-    public float StopLoss { get; set; } = 1.5f; //(%)
+    public float StopLoss { get; set; } = 3f; //(%)
 
     /// <summary>
     /// 매도 최대 시점
@@ -65,7 +65,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매도 시점
     /// </summary>
-    public float SellProfit { get; set; } = 1.5f; //(%)
+    public float SellProfit { get; set; } = 2.5f; //(%)
 
     /// <summary>
     /// 매입 제한 금액
@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 3.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 5.0f;
 
     /// <summary>
     /// 최대 매수 시도 개수
