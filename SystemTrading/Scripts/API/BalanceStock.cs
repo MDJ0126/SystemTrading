@@ -97,6 +97,11 @@ public class BalanceStock
     /// </summary>
     public float? MaxProfitRate { get; private set; } = null;
 
+    /// <summary>
+    /// 목표 등락율 캐싱
+    /// </summary>
+    public float targetUpDownRate = 0f;
+
     public BalanceStock(string traingSymbol, int haveCnt, long buyingMoney, int stockPrice = 0)
     {
         SetData(traingSymbol, haveCnt, buyingMoney, stockPrice);
