@@ -176,8 +176,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             if (_tradingStartTime.Date != ProgramConfig.NowTime.Date)
                 ResetTimer();
 
-
-
             if (IsAutoProgramOrder)
             {
                 // 설정된 거래 시간 범위 기준으로 거래 진행 + 목표 수익률 실현하면 거래 안함
