@@ -163,8 +163,8 @@ namespace SystemTrading.Forms
             public string UpDownRate => $"{stockInfo?.UpDownRate.ToString("F2")}%" ?? "";
             public string TodayTradingRate => $"{stockInfo?.TodayTradingRate.ToString("F2")}%" ?? "";
             public double Score => stockInfo?.Score ?? 0;
-            public string SellName => "매수";
             public string GrowthRatePerMinute => $"{stockInfo?.GrowthRatePerMinute.ToString("F2")}%" ?? "";
+            public string SellName => "매수";
 
             public StockDataByGrid(StockInfo stockInfo)
             {
@@ -196,7 +196,6 @@ namespace SystemTrading.Forms
             {
                 int horizontalScrollingOffset = allStockdataGridView.HorizontalScrollingOffset;
                 int firstDisplayedScrollingRowIndex = allStockdataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : allStockdataGridView.FirstDisplayedScrollingRowIndex;
-                allStockdataGridView.DataSource = null;
                 allStockdataGridView.DataSource = _stockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
                 allStockdataGridView.Refresh();
                 allStockdataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
@@ -227,7 +226,6 @@ namespace SystemTrading.Forms
             {
                 int horizontalScrollingOffset = recommendDataGridView.HorizontalScrollingOffset;
                 int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : recommendDataGridView.FirstDisplayedScrollingRowIndex;
-                recommendDataGridView.DataSource = null;
                 recommendDataGridView.DataSource = _recommendStockDataByGrids;
                 recommendDataGridView.Refresh();
                 recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
