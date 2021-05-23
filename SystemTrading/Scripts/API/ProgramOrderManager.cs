@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 1.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 2.0f;
 
     /// <summary>
     /// 최대 매수 시도 개수
@@ -214,7 +214,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 // 조건: 매수시 등락율 범위
                                 if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                                 {
-                                    // 조건: 분당 성장률 1%이상일 때
+                                    // 조건: 분당 성장률 2%이상일 때
                                     if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                                     {
                                         isBuy = true;
@@ -228,7 +228,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                     !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
                                 {
                                     // 동전주는 위험하니 받지 않는다.
-                                    if (stockInfo.StockPrice > 1500)
+                                    //if (stockInfo.StockPrice > 1000)
                                         recommendeds.Add(stockInfo);
                                 }
                             }
@@ -313,7 +313,13 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             //}
 
                             // 조건5: 목표 등락율 달성
-                            if (balanceStocks[i].targetUpDownRate <= balanceStocks[i].stockInfo.UpDownRate)
+                            if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
+                            {
+                                isSell = true;
+                            }
+
+                            // 조건6: 최대 등락율(25%) 달성, 조건5 방어 코드
+                            if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
                             {
                                 isSell = true;
                             }
