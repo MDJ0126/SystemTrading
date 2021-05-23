@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 2.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 1.0f;
 
     /// <summary>
     /// 최대 매수 시도 개수
@@ -101,6 +101,24 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// 거래가 가능한 시간인지
     /// </summary>
     public bool IsAvailableTradingTime => _tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime;
+
+    /// <summary>
+    /// 금일 목표 수익률
+    /// </summary>
+    public float TodayTargetAccountProfitRate { get; set; } = 2f;
+
+    /// <summary>
+    /// 금일 목표 수익률 완료 여부
+    /// </summary>
+    public bool IsCompleteTodyTrading
+    { 
+        get
+        {
+            if (AccountInfo != null)
+                return AccountInfo.TodayProfitRate >= TodayTargetAccountProfitRate;
+            return false;
+        }
+    }
 
     /// <summary>
     /// 감시 시간 리셋
@@ -158,19 +176,22 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             if (_tradingStartTime.Date != ProgramConfig.NowTime.Date)
                 ResetTimer();
 
-            // 설정된 거래 시간 범위 기준으로 거래 진행
-            if (_tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime)
-            {
-                // 0. 최초 시작
-                if (isTradingStart)
-                {
-                    isTradingStart = false;
-                    isTradingEnd = true;
-                    _sellStockInfos.Clear();
 
-                    // 모두 주문 취소하기
-                    if (IsAutoProgramOrder)
+
+            if (IsAutoProgramOrder)
+            {
+                // 설정된 거래 시간 범위 기준으로 거래 진행 + 목표 수익률 실현하면 거래 안함
+                if (_tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime 
+                    && !IsCompleteTodyTrading)
+                {
+                    // 0. 최초 시작
+                    if (isTradingStart)
                     {
+                        isTradingStart = false;
+                        isTradingEnd = true;
+                        _sellStockInfos.Clear();
+
+                        // 모두 주문 취소하기
                         for (int i = 0; i < balanceStocks.Count; i++)
                         {
                             var balanceStock = balanceStocks[i];
@@ -178,46 +199,43 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 OrderCancel(balanceStock.stockInfo);
                         }
                     }
-                }
 
-                // 1. 매수 예정 리스트 체크
-                for (int i = 0; i < orderStockInfos.Count; i++)
-                {
-                    var stockInfo = orderStockInfos[i];
-                    if (stockInfo != null)
+                    // 1. 매수 예정 리스트 체크
+                    for (int i = 0; i < orderStockInfos.Count; i++)
                     {
-                        bool isBuy = false;
-
-                        // 조건: 당일 갱신 기준
-                        if (stockInfo.RefreshTime.Date == ProgramConfig.NowTime.Date)
+                        var stockInfo = orderStockInfos[i];
+                        if (stockInfo != null)
                         {
-                            // 조건: 매수시 등락율 범위
-                            if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
+                            bool isBuy = false;
+
+                            // 조건: 당일 갱신 기준
+                            if (stockInfo.RefreshTime.Date == ProgramConfig.NowTime.Date)
                             {
-                                // 조건: 분당 성장률 3%이상일 때
-                                if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
+                                // 조건: 매수시 등락율 범위
+                                if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                                 {
-                                    isBuy = true;
+                                    // 조건: 분당 성장률 1%이상일 때
+                                    if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
+                                    {
+                                        isBuy = true;
+                                    }
+                                }
+                            }
+
+                            if (isBuy)
+                            {
+                                if (!recommendeds.Exists(stock => stockInfo.Equals(stock)) &&
+                                    !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
+                                {
+                                    // 동전주는 위험하니 받지 않는다.
+                                    if (stockInfo.StockPrice > 1500)
+                                        recommendeds.Add(stockInfo);
                                 }
                             }
                         }
-
-                        if (isBuy)
-                        {
-                            if (!recommendeds.Exists(stock => stockInfo.Equals(stock)) &&
-                                !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
-                            {
-                                // 동전주는 위험하니 받지 않는다.
-                                if (stockInfo.StockPrice > 1500)
-                                    recommendeds.Add(stockInfo);
-                            }
-                        }
                     }
-                }
 
-                // 1-1. 매수하기
-                if (IsAutoProgramOrder)
-                {
+                    // 1-1. 매수하기
                     // 주문 진행 중인 경우에는 불가하도록 (완전히 계산되지 않을 때는 엉뚱하게 계속 주문하게됨. 이를 방지)
                     bool isBuyAvailableState = !AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have);
                     if (isBuyAvailableState)
@@ -263,49 +281,52 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             }
                         }
                     }
-                }
 
-                // 2. 매도 체크
-                for (int i = 0; i < balanceStocks.Count; i++)
-                {
-                    if (balanceStocks[i].BalanceStockState == eBalanceStockState.Have)
+                    // 2. 매도 체크
+                    for (int i = 0; i < balanceStocks.Count; i++)
                     {
-                        bool isSell = false;
-                        // 조건1: 최대 손익율에서 스탑 로스 책정
-                        if (balanceStocks[i].MaxProfitRate - balanceStocks[i].EstimatedProfitRate >= StopLoss)
+                        if (balanceStocks[i].BalanceStockState == eBalanceStockState.Have)
                         {
-                            isSell = true;
-                        }
+                            bool isSell = false;
+                            // 조건1: 최대 손익율에서 스탑 로스 책정
+                            if (balanceStocks[i].MaxProfitRate - balanceStocks[i].EstimatedProfitRate >= StopLoss)
+                            {
+                                isSell = true;
+                            }
 
-                        // 조건2: 최대 이익 시점 도달하는 경우
-                        //if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
-                        //{
-                        //    isSell = true;
-                        //}
+                            // 조건2: 최대 이익 시점 도달하는 경우
+                            //if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
+                            //{
+                            //    isSell = true;
+                            //}
 
-                        // 조건3: 특정 손익율 도달하는 경우
-                        if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
-                        {
-                            isSell = true;
-                        }
+                            // 조건3: 특정 손익율 도달하는 경우
+                            //if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
+                            //{
+                            //    isSell = true;
+                            //}
 
-                        // 조건4: 보유 시간이 20분 이상 지나면 목표치를 절반으로 줄임
-                        if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
-                        {
-                            isSell = true;
-                        }
+                            // 조건4: 보유 시간이 20분 이상 지나면 목표치를 절반으로 줄임
+                            //if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
+                            //{
+                            //    isSell = true;
+                            //}
 
-                        if (isSell)
-                        {
-                            if (!sellStocks.Exists(item => item.Equals(balanceStocks[i])))
-                                sellStocks.Add(balanceStocks[i]);
+                            // 조건5: 목표 등락율 달성
+                            if (balanceStocks[i].targetUpDownRate <= balanceStocks[i].stockInfo.UpDownRate)
+                            {
+                                isSell = true;
+                            }
+
+                            if (isSell)
+                            {
+                                if (!sellStocks.Exists(item => item.Equals(balanceStocks[i])))
+                                    sellStocks.Add(balanceStocks[i]);
+                            }
                         }
                     }
-                }
 
-                // 2-1. 매도하기
-                if (IsAutoProgramOrder)
-                {
+                    // 2-1. 매도하기
                     for (int i = 0; i < sellStocks.Count; i++)
                     {
                         var balanceStock = sellStocks[i];
@@ -313,28 +334,38 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                     }
                     sellStocks.Clear();
-                }
 
-                // 3. 너무 오래동안 매수 주문 걸려있으면 취소 처리
-                for (int i = 0; i < balanceStocks.Count; i++)
-                {
-                    var balanceStock = balanceStocks[i];
-                    if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
+                    // 3. 너무 오래동안 매수 주문 걸려있으면 취소 처리
+                    for (int i = 0; i < balanceStocks.Count; i++)
                     {
-                        // 10분 이상인 경우 취소 처리
-                        if (balanceStock.OrderTime != null)
+                        var balanceStock = balanceStocks[i];
+                        if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
                         {
-                            if (balanceStock.OrderTime.Value.AddMinutes(10) <= ProgramConfig.NowTime)
-                                OrderCancel(balanceStock.stockInfo);
+                            // 10분 이상인 경우 취소 처리
+                            if (balanceStock.OrderTime != null)
+                            {
+                                if (balanceStock.OrderTime.Value.AddMinutes(10) <= ProgramConfig.NowTime)
+                                    OrderCancel(balanceStock.stockInfo);
+                            }
                         }
                     }
                 }
-            }
-            else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5))
-            {
-                // 모두 매도하기
-                if (IsAutoProgramOrder)
+                else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5) || IsCompleteTodyTrading)
                 {
+                    if (IsCompleteTodyTrading)
+                        LineNotify.SendMessage("목표 수익률에 달성하여, 자동 거래를 조기 종료합니다.");
+
+                    // 모두 주문 취소하기
+                    for (int i = 0; i < balanceStocks.Count; i++)
+                    {
+                        var balanceStock = balanceStocks[i];
+                        if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
+                        {
+                            OrderCancel(balanceStock.stockInfo);
+                        }
+                    }
+
+                    // 모두 매도하기
                     for (int i = 0; i < balanceStocks.Count; i++)
                     {
                         var balanceStock = balanceStocks[i];
@@ -342,23 +373,13 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                     }
                 }
-            }
-            else
-            {
-                isTradingStart = true;
-                if (isTradingEnd)
+                else
                 {
-                    isTradingEnd = false;
-                    // 모두 주문 취소하기
-                    //if (IsAutoProgramOrder)
-                    //{
-                    //    for (int i = 0; i < balanceInfos.Count; i++)
-                    //    {
-                    //        var balanceStock = balanceInfos[i];
-                    //        if (balanceStock.BalanceStockState != eBalanceStockState.Have)
-                    //            OrderCancel(balanceStock.stockInfo);
-                    //    }
-                    //}
+                    isTradingStart = true;
+                    if (isTradingEnd)
+                    {
+                        isTradingEnd = false;
+                    }
                 }
             }
             Thread.Sleep(500);

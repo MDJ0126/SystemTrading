@@ -10,19 +10,16 @@ public class StockInfo
     private class UpDownRateRecord
     {
         /// <summary>
-        /// 최근 1분 사이 가장 오래된 기록
+        /// 최근 1분 평균
         /// </summary>
-        public float? OneMinuteAgoRecord
+        public float? OneMinuteAverage
         { 
             get
             {
                 TrimRecord();
-                if (_rateRecordQueue.Count > 0)
-                {
-                    // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
-                    if (ProgramConfig.StartUpTimeSeconds > 60f)
-                        return _rateRecordQueue.Peek().rate;
-                }
+                // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
+                if (ProgramConfig.StartUpTimeSeconds > 60f)
+                    return AverageRate();
                 return null;
             }
         }
@@ -53,11 +50,32 @@ public class StockInfo
         }
 
         /// <summary>
-        /// 1분 이상 지난 기록은 제거
+        /// 평균
+        /// </summary>
+        /// <returns></returns>
+        private float AverageRate()
+        {
+            if (_rateRecordQueue.Count > 0)
+            {
+                float totalRate = 0f;
+                int count = 0;
+                var enumerator = _rateRecordQueue.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    totalRate += enumerator.Current.rate;
+                    ++count;
+                }
+                return totalRate / count;
+            }
+            return 0f;
+        }
+
+        /// <summary>
+        /// 2분 이상 지난 기록은 제거
         /// </summary>
         private void TrimRecord()
         {
-            var minuteAgo = ProgramConfig.NowTime.AddMinutes(-1f);    // 1분 전 변수 캐싱
+            var minuteAgo = ProgramConfig.NowTime.AddMinutes(-2f);    // 2분 전 변수 캐싱
             while (_rateRecordQueue.Count > 0)
             {
                 RateRecord peek = _rateRecordQueue.Peek();
@@ -181,34 +199,19 @@ public class StockInfo
     }
 
     /// <summary>
-    /// 분당 성장률
+    /// 분당 성장률 평균
     /// </summary>
     public float GrowthRatePerMinute
     {
         get
         {
-            var oneMinuteAgoRecord = _rateRecord?.OneMinuteAgoRecord;
-            if (oneMinuteAgoRecord == null)
-            {
-                if (_cachingGrowthRatePerMinute != 0f)
-                {
-                    if (RefreshTime >= ProgramConfig.NowTime.AddMinutes(-1f))
-                    {
-                        return _cachingGrowthRatePerMinute;
-                    }
-                }
-                return 0f;
-            }
-            else
-            {
-                _cachingGrowthRatePerMinute = _currRate - oneMinuteAgoRecord.Value;
-                return _cachingGrowthRatePerMinute;
-            }
+            var oneMinuteAverage = _rateRecord?.OneMinuteAverage;
+            if (oneMinuteAverage != null)
+                return _currRate - oneMinuteAverage.Value;
+
+            return 0f;
         }
     }
-
-    // 재실행 때를 위해 '분당 성장률' 캐싱
-    private float _cachingGrowthRatePerMinute = 0f;
 
     public Dictionary<eOrderType, OrderInfo> OrderInfos { get; private set; } = new Dictionary<eOrderType, OrderInfo>();
 

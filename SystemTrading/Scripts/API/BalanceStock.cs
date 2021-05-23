@@ -202,6 +202,15 @@ public class BalanceStock
         this.BalanceStockState = state;
     }
 
+    /// <summary>
+    /// 목표 등락률 설정
+    /// </summary>
+    /// <param name="rate"></param>
+    public void ResetTargetRate()
+    {
+        this.targetUpDownRate = this.stockInfo.UpDownRate + (this.stockInfo.GrowthRatePerMinute * 2f);
+    }
+
     public void RestoreOrderState()
     {
         this.BalanceStockState = _prevBalanceStockState;
