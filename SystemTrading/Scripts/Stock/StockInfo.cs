@@ -57,15 +57,28 @@ public class StockInfo
         {
             if (_rateRecordQueue.Count > 0)
             {
-                float totalRate = 0f;
-                int count = 0;
+                float totalRate2MinuteAgo = 0f, totalRate1MinuteAgo = 0;
+                int count2MinuteAgo = 0, count1MinuteAgo = 0;
                 var enumerator = _rateRecordQueue.GetEnumerator();
+                var nowTime = ProgramConfig.NowTime;
                 while (enumerator.MoveNext())
                 {
-                    totalRate += enumerator.Current.rate;
-                    ++count;
+                    RateRecord rateRecord = enumerator.Current;
+                    if (rateRecord.inputTime < nowTime.AddMinutes(-1f))
+                    {
+                        // 2분 전 기록들
+                        totalRate2MinuteAgo += rateRecord.rate;
+                        ++count2MinuteAgo;
+                    }
+                    else
+                    {
+                        // 1분 전 기록들
+                        totalRate1MinuteAgo += rateRecord.rate;
+                        ++count1MinuteAgo;
+                    }
                 }
-                return totalRate / count;
+                if (count1MinuteAgo > 0 && count2MinuteAgo > 0)
+                    return (totalRate1MinuteAgo / count1MinuteAgo) - (totalRate2MinuteAgo / count2MinuteAgo);
             }
             return 0f;
         }
@@ -207,8 +220,7 @@ public class StockInfo
         {
             var oneMinuteAverage = _rateRecord?.OneMinuteAverage;
             if (oneMinuteAverage != null)
-                return _currRate - oneMinuteAverage.Value;
-
+                return oneMinuteAverage.Value;
             return 0f;
         }
     }
@@ -385,7 +397,6 @@ public class StockInfo
                 this.StockPrice = stockInfo.StockPrice;
                 this.UpDownPrice = stockInfo.UpDownPrice;
                 this.UpDownRate = stockInfo.UpDownRate;
-                this._rateRecord = stockInfo._rateRecord;
                 this.tradingVolume = stockInfo.tradingVolume;
                 this.TodayTradingRate = stockInfo.TodayTradingRate;
                 this._currRate = stockInfo._currRate;

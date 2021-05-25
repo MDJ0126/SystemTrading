@@ -54,7 +54,30 @@ namespace SystemTrading.Forms
             HandlerKiwoomAPI.Instance.onRecieveRealData += OnRecieveRealData;
             HandlerKiwoomAPI.Instance.onReceiveChejanData += OnReceiveChejanData;
             //StartCoroutine("RequestAllStockInfo");
+            //StartCoroutine("Test");
         }
+
+        //private IEnumerator Test()
+        //{
+        //    yield return new WaitForSeconds(10f);
+        //    var stock = StockListManager.Instance.GetStockInfoByName("동화약품");
+        //    int count = 0;
+        //    float rate = 1;
+        //    while (true)
+        //    {
+        //        if (stock != null)
+        //        {
+        //            stock.SetPriceData("10000", "10000", rate.ToString(), "1");
+        //            count++;
+        //            yield return new WaitForSeconds(1f);
+        //            if (count >= 60)
+        //            {
+        //                count = 0;
+        //                rate++;
+        //            }    
+        //        }
+        //    }
+        //}
 
         private void OnReceiveChejanData()
         {
