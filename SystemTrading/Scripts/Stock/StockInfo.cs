@@ -59,7 +59,9 @@ public class StockInfo
             {
                 float totalRate2MinuteAgo = 0f, totalRate1MinuteAgo = 0;
                 int count2MinuteAgo = 0, count1MinuteAgo = 0;
-                var enumerator = _rateRecordQueue.GetEnumerator();
+
+                Queue<RateRecord> temp = new Queue<RateRecord>(_rateRecordQueue);
+                var enumerator = temp.GetEnumerator();
                 var nowTime = ProgramConfig.NowTime;
                 while (enumerator.MoveNext())
                 {
