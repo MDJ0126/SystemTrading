@@ -16,7 +16,7 @@ public class StockInfo
         { 
             get
             {
-                TrimRecord();
+                //TrimRecord();
                 // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
                 if (ProgramConfig.StartUpTimeSeconds > 60f)
                     return AverageRate();
@@ -60,8 +60,7 @@ public class StockInfo
                 float totalRate2MinuteAgo = 0f, totalRate1MinuteAgo = 0;
                 int count2MinuteAgo = 0, count1MinuteAgo = 0;
 
-                Queue<RateRecord> temp = new Queue<RateRecord>(_rateRecordQueue);
-                var enumerator = temp.GetEnumerator();
+                var enumerator = _rateRecordQueue.GetEnumerator();
                 var nowTime = ProgramConfig.NowTime;
                 while (enumerator.MoveNext())
                 {
