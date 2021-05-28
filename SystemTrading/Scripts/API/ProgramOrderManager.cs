@@ -186,7 +186,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     if (isTradingStart)
                     {
                         isTradingStart = false;
-                        isTradingEnd = true;
+                        isTradingEnd = false;
                         _sellStockInfos.Clear();
 
                         // 모두 주문 취소하기
@@ -356,33 +356,37 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 }
                 else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5) || IsCompleteTodyTrading)
                 {
-                    if (IsCompleteTodyTrading)
-                        LineNotify.SendMessage("목표 수익률에 달성하여, 자동 거래를 조기 종료합니다.");
-
-                    // 모두 주문 취소하기
-                    for (int i = 0; i < balanceStocks.Count; i++)
+                    if (!isTradingEnd)
                     {
-                        var balanceStock = balanceStocks[i];
-                        if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
+                        isTradingEnd = true;
+                        if (IsCompleteTodyTrading)
+                            LineNotify.SendMessage("목표 수익률에 달성하여, 자동 거래를 조기 종료합니다.");
+
+                        // 모두 주문 취소하기
+                        for (int i = 0; i < balanceStocks.Count; i++)
                         {
-                            OrderCancel(balanceStock.stockInfo);
+                            var balanceStock = balanceStocks[i];
+                            if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
+                            {
+                                OrderCancel(balanceStock.stockInfo);
+                            }
                         }
-                    }
 
-                    // 모두 매도하기
-                    for (int i = 0; i < balanceStocks.Count; i++)
-                    {
-                        var balanceStock = balanceStocks[i];
-                        if (balanceStock.BalanceStockState == eBalanceStockState.Have)
-                            OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
+                        // 모두 매도하기
+                        for (int i = 0; i < balanceStocks.Count; i++)
+                        {
+                            var balanceStock = balanceStocks[i];
+                            if (balanceStock.BalanceStockState == eBalanceStockState.Have)
+                                OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
+                        }
                     }
                 }
                 else
                 {
                     isTradingStart = true;
-                    if (isTradingEnd)
+                    if (!isTradingEnd)
                     {
-                        isTradingEnd = false;
+                        isTradingEnd = true;
                     }
                 }
             }
