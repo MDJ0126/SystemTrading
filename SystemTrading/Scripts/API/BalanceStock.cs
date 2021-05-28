@@ -93,6 +93,11 @@ public class BalanceStock
     public float EstimatedProfitRate { get; private set; } = 0f;
 
     /// <summary>
+    /// 매도 매수 거래 수수료, 세금 캐싱
+    /// </summary>
+    public long buyFees, buyTax, sellFees, sellTax;
+
+    /// <summary>
     /// 프로그램 시작 이후 포착된 최대 손익율 (스탑 로스에 사용됨)
     /// </summary>
     public float? MaxProfitRate { get; private set; } = null;

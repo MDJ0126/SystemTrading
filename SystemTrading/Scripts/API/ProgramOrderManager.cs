@@ -105,7 +105,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 금일 목표 수익률
     /// </summary>
-    public float TodayTargetAccountProfitRate { get; set; } = 2f;
+    public float TodayTargetAccountProfitRate { get; set; } = 3.5f;
 
     /// <summary>
     /// 금일 목표 수익률 완료 여부
@@ -179,8 +179,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
             if (IsAutoProgramOrder)
             {
                 // 설정된 거래 시간 범위 기준으로 거래 진행 + 목표 수익률 실현하면 거래 안함
-                if (_tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime 
-                    && !IsCompleteTodyTrading)
+                if (_tradingStartTime <= ProgramConfig.NowTime && _tradingEndTime >= ProgramConfig.NowTime)
                 {
                     // 0. 최초 시작
                     if (isTradingStart)
@@ -235,8 +234,9 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
 
                     // 1-1. 매수하기
                     // 주문 진행 중인 경우에는 불가하도록 (완전히 계산되지 않을 때는 엉뚱하게 계속 주문하게됨. 이를 방지)
+                    // + 목표 수익률 달성하면 매수 안 함.
                     bool isBuyAvailableState = !AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have);
-                    if (isBuyAvailableState)
+                    if (isBuyAvailableState && !IsCompleteTodyTrading)
                     {
                         if (AccountInfo != null)
                         {
@@ -354,13 +354,16 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         }
                     }
                 }
-                else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5) || IsCompleteTodyTrading)
+                else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5))
                 {
+                    
+                }
+                else
+                {
+                    isTradingStart = true;
                     if (!isTradingEnd)
                     {
                         isTradingEnd = true;
-                        if (IsCompleteTodyTrading)
-                            LineNotify.SendMessage("목표 수익률에 달성하여, 자동 거래를 조기 종료합니다.");
 
                         // 모두 주문 취소하기
                         for (int i = 0; i < balanceStocks.Count; i++)
@@ -379,14 +382,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             if (balanceStock.BalanceStockState == eBalanceStockState.Have)
                                 OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                         }
-                    }
-                }
-                else
-                {
-                    isTradingStart = true;
-                    if (!isTradingEnd)
-                    {
-                        isTradingEnd = true;
                     }
                 }
             }

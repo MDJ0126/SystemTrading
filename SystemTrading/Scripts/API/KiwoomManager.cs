@@ -9,7 +9,7 @@ using SystemTrading.Forms;
 public partial class KiwoomManager : Singleton<KiwoomManager>
 {
     // 시스템 점검 시간
-    public DateTime SystemCheckStartTime => ProgramConfig.NowTime.Date.AddHours(4).AddMinutes(25);
+    public DateTime SystemCheckStartTime => ProgramConfig.NowTime.Date.AddHours(3).AddMinutes(00);
     public DateTime SystemCheckEndTime => ProgramConfig.NowTime.Date.AddHours(5).AddMinutes(5);
 
     // 장 시작 하기 전에 한 번 재실행 시간
@@ -448,6 +448,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     int resultCount;
                     long resultPrice;
                     long tradePrice;
+                    int unitPrice;
                     long fees;
                     long tax;
 
@@ -464,6 +465,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     long.TryParse(GetSendOrderResultData(eFID.체결누계금액), out resultPrice);
                     int.TryParse(GetSendOrderResultData(eFID.체결량_누적), out resultCount); // 체결될 때마다 수신하여 누적한 값을 준다. (체결된 총량)
                     long.TryParse(GetSendOrderResultData(eFID.체결가), out tradePrice);
+                    int.TryParse(GetSendOrderResultData(eFID.단위체결가), out unitPrice);
                     long.TryParse(GetSendOrderResultData(eFID.당일매매수수료), out fees);
                     long.TryParse(GetSendOrderResultData(eFID.당일매매세금), out tax);
 
@@ -471,7 +473,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     if (state.Contains("체결"))
                     {
                         // 체결
-                        accountInfo.TradingStock(traingSymbol, resultCount, resultPrice, waitOrderCount, orderCount, orderType, fees, tax);
+                        accountInfo.TradingStock(traingSymbol, unitPrice, resultCount, resultPrice, waitOrderCount, orderCount, orderType, fees, tax);
 
                         BalanceStock balanceStock = accountInfo.GetMyBalanceStock(traingSymbol);
                         if (balanceStock != null && balanceStock.BalanceStockState == eBalanceStockState.Have)

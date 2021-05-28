@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 [Serializable]
 public class AccountInfo
@@ -233,53 +234,77 @@ public class AccountInfo
         }
     }
 
+    private StringBuilder _sb = new StringBuilder();
     /// <summary>
     /// 종목 거래 체결
     /// </summary>
-    public void TradingStock(string traingSymbol, int resultCount, long resultPrice, int waitOrderCnt, int orderCount, string orderType, long fees, long tax)
+    public void TradingStock(string traingSymbol, int unitPrice, int resultCount, long resultPrice, int waitOrderCnt, int orderCount, string orderType, long fees, long tax)
     {
         bool isEndTrading = waitOrderCnt == 0;  // 거래가 완전히 끝났는지?
         if (isEndTrading)
         {
-            this.DepositAfter2Day -= fees + tax;
-            this.AvailableMoney -= fees + tax;
+            // 거래 수수료는 모두 합쳐서 발생(체결될 때마다 수수료가 누적되기에 마지막에 거래가 끝난 기준으로 한번에 정산)
+            this.DepositAfter2Day -= fees;
+            this.AvailableMoney -= fees;
+            this.TodayProfitAmount -= fees;
         }
+        // 세금은 각 단위체결당 발생
+        this.DepositAfter2Day -= tax;
+        this.AvailableMoney -= tax;
+        this.TodayProfitAmount -= tax;
+
         BalanceStock balanceStock = GetMyBalanceStock(traingSymbol);
         if (balanceStock != null)
         {
             if (orderType.Contains("매수"))
             {
+                balanceStock.SetBuyCount(waitOrderCnt, resultCount, resultPrice);
+                balanceStock.buyFees = fees;
+                balanceStock.buyTax += tax; // 매수 시, 세금 0원
                 if (isEndTrading)
                 {
                     this.DepositAfter2Day -= resultPrice;
                     this.AvailableMoney -= resultPrice;
+
+                    _sb.Length = 0;
+                    _sb.Append($"\n[{balanceStock.StockName}] 매수 체결되었습니다.");
+                    _sb.Append($"\n=======상세명세서=======");
+                    _sb.Append($"\n주문 수량: {orderCount:N0}개");
+                    _sb.Append($"\n총 매입가: {resultPrice:N0}원");
+                    _sb.Append($"\n거래수수료: {balanceStock.buyFees:N0}원");
+                    _sb.Append($"\n세금: {balanceStock.buyTax:N0}원");
+                    _sb.Append($"\n======================");
+                    LineNotify.SendMessage(_sb.ToString());
                 }
-                balanceStock.SetBuyCount(waitOrderCnt, resultCount, resultPrice);
             }
             else if (orderType.Contains("매도"))
             {
+                balanceStock.sellFees = fees;
+                balanceStock.sellTax += tax;
                 if (isEndTrading)
                 {
                     this.DepositAfter2Day += resultPrice;
                     this.AvailableMoney += resultPrice;
-
-                    long oneStockBuyMoney = balanceStock.BuyingMoney / orderCount;              // 스톡 하나당 매입가
-                    TodayProfitAmount += resultPrice - fees - tax - balanceStock.BuyingMoney;   // 금일 손익금에 반영
-
-                    var profit = resultPrice - fees - tax - balanceStock.BuyingMoney;           // 종목 손익금
-                    var profitRate = profit / (float)balanceStock.BuyingMoney * 100f;           // 종목 손익률
-                    LineNotify.SendMessage($"\n[{balanceStock.StockName}] 매도 체결되었습니다." +
-                                            $"\n=======상세명세서=======" +
-                                            $"\n종목 개당 매입가: {oneStockBuyMoney:N0}원" +
-                                            $"\n매입 개수: {orderCount:N0}개" +
-                                            $"\n총 매입가: {balanceStock.BuyingMoney:N0}원" +
-                                            $"\n총 매도가: {resultPrice:N0}원" +
-                                            $"\n거래세: {fees:N0}원" +
-                                            $"\n세금: {tax:N0}원" +
-                                            $"\n======================" +
-                                            $"\n차익=> {profit:N0}원({profitRate:F2}%)");
-
+                    this.TodayProfitAmount += resultPrice - balanceStock.BuyingMoney;       // 금일 손익금에 반영
                     BalanceStocks.Remove(balanceStock);
+
+                    // 로그
+                    long oneStockBuyMoney = balanceStock.BuyingMoney / orderCount;              // 스톡 하나당 매입가
+                    long profit = resultPrice - fees - tax - balanceStock.BuyingMoney;          // 종목 손익금
+                    float profitRate = profit / (float)balanceStock.BuyingMoney * 100f;         // 종목 손익률
+
+                    _sb.Length = 0;
+                    _sb.Append($"\n[{balanceStock.StockName}] 매도 체결되었습니다.");
+                    _sb.Append($"\n=======상세명세서=======");
+                    _sb.Append($"\n종목 개당 매입가: {oneStockBuyMoney:N0}원");
+                    _sb.Append($"\n주문 수량: {orderCount:N0}개");
+                    _sb.Append($"\n총 매입가: {balanceStock.BuyingMoney:N0}원");
+                    _sb.Append($"\n총 매도가: {resultPrice:N0}원");
+                    _sb.Append($"\n거래수수료: {balanceStock.sellFees:N0}원");
+                    _sb.Append($"\n세금: {balanceStock.sellTax:N0}원");
+                    _sb.Append($"\n======================");
+                    _sb.Append($"\n차익=> {profit:N0}원({profitRate:F2}%)");
+                    LineNotify.SendMessage(_sb.ToString());
                 }
                 balanceStock.SetSellCount(waitOrderCnt);
             }
