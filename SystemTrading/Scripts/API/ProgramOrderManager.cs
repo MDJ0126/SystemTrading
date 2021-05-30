@@ -5,7 +5,7 @@ using System.Threading;
 
 public class ProgramOrderManager : Singleton<ProgramOrderManager>
 {
-    private DateTime _tradingStartTime, _tradingEndTime, _allSellTime;
+    private DateTime _tradingStartTime, _tradingEndTime;
 
     private bool _isAutoProgramOrder = true;
     /// <summary>
@@ -128,7 +128,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
         // 프로그램 자동 거래 시간 금일 오전 9시 10분 ~ 오후 2시 30분까지
         _tradingStartTime   = ProgramConfig.NowTime.Date.AddHours(9).AddMinutes(00);
         _tradingEndTime     = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
-        _allSellTime        = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
         _sellStockInfos.Clear();
     }
 
@@ -354,10 +353,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         }
                     }
                 }
-                else if (_allSellTime <= ProgramConfig.NowTime && ProgramConfig.NowTime <= _allSellTime.AddMinutes(5))
-                {
-                    
-                }
                 else
                 {
                     isTradingStart = true;
@@ -375,6 +370,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             }
                         }
 
+                        // 손해 보더라도 더 이상의 거래는 무의미하므로 접는다.
                         // 모두 매도하기
                         for (int i = 0; i < balanceStocks.Count; i++)
                         {
