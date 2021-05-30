@@ -184,7 +184,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     if (isTradingStart)
                     {
                         isTradingStart = false;
-                        isTradingEnd = false;
+                        isTradingEnd = true;
                         _sellStockInfos.Clear();
 
                         // 모두 주문 취소하기
@@ -356,8 +356,9 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                 else
                 {
                     isTradingStart = true;
-                    if (!isTradingEnd)
+                    if (isTradingEnd)
                     {
+                        isTradingEnd = false;
                         if (IsCompleteTodyTrading)
                         {
                             LineNotify.SendMessage($"{AccountInfo.TodayProfitRate:F2}%의 수익으로 금일 거래에 안정적인 거래로 완료되었습니다.😆" +
@@ -369,7 +370,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                                     $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)");
                         }
 
-                        isTradingEnd = true;
 
                         // 모두 주문 취소하기
                         for (int i = 0; i < balanceStocks.Count; i++)
