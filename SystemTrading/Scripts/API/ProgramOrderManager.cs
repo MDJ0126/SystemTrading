@@ -65,7 +65,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매도 시점
     /// </summary>
-    public float SellProfit { get; set; } = 1.5f; //(%)
+    public float SellProfit { get; set; } = 2.5f; //(%)
 
     /// <summary>
     /// 매입 제한 금액
@@ -298,28 +298,28 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             //}
 
                             // 조건3: 특정 손익율 도달하는 경우
-                            //if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
-                            //{
-                            //    isSell = true;
-                            //}
+                            if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
+                            {
+                                isSell = true;
+                            }
 
                             // 조건4: 보유 시간이 20분 이상 지나면 목표치를 절반으로 줄임
-                            //if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
+                            if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
+                            {
+                                isSell = true;
+                            }
+
+                            // 조건5: 목표 등락율 달성
+                            //if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
                             //{
                             //    isSell = true;
                             //}
 
-                            // 조건5: 목표 등락율 달성
-                            if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
-                            {
-                                isSell = true;
-                            }
-
                             // 조건6: 최대 등락율(25%) 달성, 조건5 방어 코드
-                            if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
-                            {
-                                isSell = true;
-                            }
+                            //if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
+                            //{
+                            //    isSell = true;
+                            //}
 
                             if (isSell)
                             {
@@ -361,15 +361,14 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         isTradingEnd = false;
                         if (IsCompleteTodyTrading)
                         {
-                            LineNotify.SendMessage($"{AccountInfo.TodayProfitRate:F2}%의 수익으로 금일 거래에 안정적인 거래로 완료되었습니다.😆" +
+                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원({AccountInfo.TodayProfitRate:F2}%)의 수익으로 금일 거래에 안정적인 거래로 완료되었습니다.😆" +
                                                     $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)");
                         }
                         else
                         {
-                            LineNotify.SendMessage($"{AccountInfo.TodayProfitRate:F2}%의 수익으로 금일 거래가 아쉽게 마무리되었습니다.😭" +
+                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원{AccountInfo.TodayProfitRate:F2}%의 수익으로 금일 거래가 아쉽게 마무리되었습니다.😭" +
                                                     $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)");
                         }
-
 
                         // 모두 주문 취소하기
                         for (int i = 0; i < balanceStocks.Count; i++)
