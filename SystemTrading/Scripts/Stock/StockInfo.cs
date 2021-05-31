@@ -9,6 +9,7 @@ public class StockInfo
 {
     private class UpDownRateRecord
     {
+        private float _oneMinuteAverage = 0f;
         /// <summary>
         /// 최근 1분 평균
         /// </summary>
@@ -19,7 +20,7 @@ public class StockInfo
                 //TrimRecord();
                 // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
                 if (ProgramConfig.StartUpTimeSeconds > 60f)
-                    return AverageRate();
+                    return _oneMinuteAverage;
                 return null;
             }
         }
@@ -47,13 +48,14 @@ public class StockInfo
         {
             _rateRecordQueue.Enqueue(new RateRecord(ProgramConfig.NowTime, currentRate));
             TrimRecord();
+            AverageRate();
         }
 
         /// <summary>
         /// 평균
         /// </summary>
         /// <returns></returns>
-        private float AverageRate()
+        private void AverageRate()
         {
             if (_rateRecordQueue.Count > 0)
             {
@@ -79,9 +81,10 @@ public class StockInfo
                     }
                 }
                 if (count1MinuteAgo > 0 && count2MinuteAgo > 0)
-                    return (totalRate1MinuteAgo / count1MinuteAgo) - (totalRate2MinuteAgo / count2MinuteAgo);
+                {
+                    _oneMinuteAverage = (totalRate1MinuteAgo / count1MinuteAgo) - (totalRate2MinuteAgo / count2MinuteAgo);
+                }
             }
-            return 0f;
         }
 
         /// <summary>
