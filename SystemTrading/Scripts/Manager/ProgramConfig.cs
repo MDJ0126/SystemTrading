@@ -92,7 +92,7 @@ public static class ProgramConfig
         if (value == eTradingTimeState.장_종료)
         {
             StockListManager.Instance.SaveStockList();
-            LineNotify.SendMessage($"{NowTime.Year}년 {NowTime.Month}월 {NowTime.Day}일 ({NowTime.ToStringDayofWeekInKorea()}) 장종료되었습니다.", Utils.FormCapture(FormManager.MainForm));
+            LineNotify.SendMessage($"{NowTime.Year}년 {NowTime.Month}월 {NowTime.Day}일 ({NowTime.ToStringDayofWeekInKorea()}) 장종료되었습니다.");
         }
     }
 

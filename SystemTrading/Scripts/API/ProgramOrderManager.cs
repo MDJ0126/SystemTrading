@@ -362,12 +362,12 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         if (IsCompleteTodyTrading)
                         {
                             LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원({AccountInfo.TodayProfitRate:F2}%)의 수익으로 금일 거래에 안정적인 거래로 완료되었습니다.😆" +
-                                                    $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)");
+                                                    $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)", Utils.FormCapture(FormManager.MainForm));
                         }
                         else
                         {
-                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원{AccountInfo.TodayProfitRate:F2}%의 수익으로 금일 거래가 아쉽게 마무리되었습니다.😭" +
-                                                    $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)");
+                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원({AccountInfo.TodayProfitRate:F2}%)의 수익으로 금일 거래가 아쉽게 마무리되었습니다.😭" +
+                                                    $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)", Utils.FormCapture(FormManager.MainForm));
                         }
 
                         // 모두 주문 취소하기
