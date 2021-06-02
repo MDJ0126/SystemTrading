@@ -45,7 +45,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 한계선
     /// </summary>
-    public float LimitRate { get; set; } = 20.0f; //(%)
+    public float LimitRate { get; set; } = 18.0f; //(%)
 
     /// <summary>
     /// 매수 시도 기준 종목 개수
@@ -291,35 +291,17 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 isSell = true;
                             }
 
-                            // 조건2: 최대 이익 시점 도달하는 경우
-                            //if (balanceInfos[i].EstimatedProfitRate >= MaxPriceRate)
-                            //{
-                            //    isSell = true;
-                            //}
-
-                            // 조건3: 특정 손익율 도달하는 경우
-                            if (balanceStocks[i].EstimatedProfitRate >= SellProfit)
-                            {
-                                isSell = true;
-                            }
-
-                            // 조건4: 보유 시간이 20분 이상 지나면 목표치를 절반으로 줄임
-                            if (balanceStocks[i].EstimatedProfitRate >= SellProfit / 2f)
-                            {
-                                isSell = true;
-                            }
-
                             // 조건5: 목표 등락율 달성
-                            //if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
-                            //{
-                            //    isSell = true;
-                            //}
+                            if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
+                            {
+                                isSell = true;
+                            }
 
                             // 조건6: 최대 등락율(25%) 달성, 조건5 방어 코드
-                            //if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
-                            //{
-                            //    isSell = true;
-                            //}
+                            if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
+                            {
+                                isSell = true;
+                            }
 
                             if (isSell)
                             {
