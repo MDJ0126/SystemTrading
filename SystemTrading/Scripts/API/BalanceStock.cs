@@ -213,7 +213,7 @@ public class BalanceStock
     /// <param name="rate"></param>
     public void ResetTargetRate()
     {
-        this.targetUpDownRate = this.stockInfo.UpDownRate + (this.stockInfo.GrowthRatePerMinute * 2f);
+        this.targetUpDownRate = this.stockInfo.UpDownRate + (this.stockInfo.GrowthRatePerMinute * 1.5f);
     }
 
     public void RestoreOrderState()

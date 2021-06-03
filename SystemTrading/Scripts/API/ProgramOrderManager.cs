@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 2.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 1.0f;
 
     /// <summary>
     /// 최대 매수 시도 개수
@@ -210,7 +210,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 // 조건: 매수시 등락율 범위
                                 if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                                 {
-                                    // 조건: 분당 성장률 2%이상일 때
+                                    // 조건: 분당 성장률 1%이상일 때
                                     if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                                     {
                                         isBuy = true;
