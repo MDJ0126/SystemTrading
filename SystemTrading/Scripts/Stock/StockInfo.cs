@@ -21,8 +21,12 @@ public class StockInfo
             {
                 //TrimRecord();
                 // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
-                if (ProgramConfig.StartUpTimeSeconds > 60f && _todayFirstAddTime.AddMinutes(1) < ProgramConfig.NowTime)
+                if (ProgramConfig.StartUpTimeSeconds > 60f
+                    && _todayFirstAddTime.Date == ProgramConfig.NowTime.Date
+                    && _todayFirstAddTime.AddMinutes(1) < ProgramConfig.NowTime)
+                {
                     return _oneMinuteAverage;
+                }
                 return null;
             }
         }
