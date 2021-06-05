@@ -9,6 +9,8 @@ public class StockInfo
 {
     private class UpDownRateRecord
     {
+        private DateTime _todayFirstAddTime = DateTime.MinValue;
+
         private float _oneMinuteAverage = 0f;
         /// <summary>
         /// 최근 1분 평균
@@ -19,7 +21,7 @@ public class StockInfo
             {
                 //TrimRecord();
                 // 프로그램이 시작된지 1분이상이 되었을 때부터 측정
-                if (ProgramConfig.StartUpTimeSeconds > 60f)
+                if (ProgramConfig.StartUpTimeSeconds > 60f && _todayFirstAddTime.AddMinutes(1) < ProgramConfig.NowTime)
                     return _oneMinuteAverage;
                 return null;
             }
@@ -46,6 +48,8 @@ public class StockInfo
         /// <param name="currentRate"></param>
         public void AddRecord(float currentRate)
         {
+            if (_todayFirstAddTime.Date != ProgramConfig.NowTime.Date)
+                _todayFirstAddTime = ProgramConfig.NowTime;
             _rateRecordQueue.Enqueue(new RateRecord(ProgramConfig.NowTime, currentRate));
             TrimRecord();
             AverageRate();
