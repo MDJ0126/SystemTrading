@@ -52,11 +52,15 @@ public class StockInfo
         /// <param name="currentRate"></param>
         public void AddRecord(float currentRate)
         {
-            if (_todayFirstAddTime.Date != ProgramConfig.NowTime.Date)
-                _todayFirstAddTime = ProgramConfig.NowTime;
-            _rateRecordQueue.Enqueue(new RateRecord(ProgramConfig.NowTime, currentRate));
-            TrimRecord();
-            AverageRate();
+            // 오전 9시 이상부터 받은 정보를 기준으로 하자
+            if (ProgramConfig.NowTime.Hour >= 9)
+            {
+                if (_todayFirstAddTime.Date != ProgramConfig.NowTime.Date)
+                    _todayFirstAddTime = ProgramConfig.NowTime;
+                _rateRecordQueue.Enqueue(new RateRecord(ProgramConfig.NowTime, currentRate));
+                TrimRecord();
+                AverageRate();
+            }
         }
 
         /// <summary>

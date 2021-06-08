@@ -220,7 +220,6 @@ namespace SystemTrading.Forms
                 int horizontalScrollingOffset = allStockdataGridView.HorizontalScrollingOffset;
                 int firstDisplayedScrollingRowIndex = allStockdataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : allStockdataGridView.FirstDisplayedScrollingRowIndex;
                 allStockdataGridView.DataSource = _stockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
-                allStockdataGridView.Refresh();
                 allStockdataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
                 if (allStockdataGridView.FirstDisplayedScrollingRowIndex > -1)
                     allStockdataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
@@ -250,7 +249,6 @@ namespace SystemTrading.Forms
                 int horizontalScrollingOffset = recommendDataGridView.HorizontalScrollingOffset;
                 int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : recommendDataGridView.FirstDisplayedScrollingRowIndex;
                 recommendDataGridView.DataSource = _recommendStockDataByGrids;
-                recommendDataGridView.Refresh();
                 recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
                 if (recommendDataGridView.FirstDisplayedScrollingRowIndex > -1)
                     recommendDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;

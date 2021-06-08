@@ -223,9 +223,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 if (!recommendeds.Exists(stock => stockInfo.Equals(stock)) &&
                                     !_sellStockInfos.Exists(stock => stockInfo.Equals(stock)))
                                 {
-                                    // 동전주는 위험하니 받지 않는다.
-                                    //if (stockInfo.StockPrice > 1000)
-                                        recommendeds.Add(stockInfo);
+                                    recommendeds.Add(stockInfo);
                                 }
                             }
                         }
