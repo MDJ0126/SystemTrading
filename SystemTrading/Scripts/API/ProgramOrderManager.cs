@@ -50,7 +50,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 시도 기준 종목 개수
     /// </summary>
-    public byte TryStockSellCount { get; set; } = 2; //(개)
+    public byte TryStockSellCount { get; set; } = 1; //(개)
 
     /// <summary>
     /// 손실 제한률
@@ -75,7 +75,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매입 종목 제한 개수
     /// </summary>
-    public long LimitCount { get; set; } = 20;  //(개)
+    public long LimitCount { get; set; } = 1;  //(개)
 
     /// <summary>
     /// 잔고 최대 보유 종목 개수
@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 1.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 2.0f;
 
     /// <summary>
     /// 최대 매수 시도 개수
@@ -210,7 +210,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 // 조건: 매수시 등락율 범위
                                 if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                                 {
-                                    // 조건: 분당 성장률 1%이상일 때
+                                    // 조건: 분당 성장률 2%이상일 때
                                     if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                                     {
                                         isBuy = true;
@@ -240,7 +240,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             long useAvailableMoney = AccountInfo.AvailableMoney;
                             // 사용 가능 금액이 총 평가 금액보다 50% 이상 많을 경우에 매수 시도
                             // 계속 반복하다보면 1개씩 매입하는 비효율 현상이 생겨서 분기태움.(안전 장치)
-                            if (useAvailableMoney >= AccountInfo.EstimatedAssets_Calc * 0.5f)
+                            //if (useAvailableMoney >= AccountInfo.EstimatedAssets_Calc * 0.5f)
                             {
                                 if (TryStockSellCount <= recommendeds.Count)
                                 {
@@ -284,7 +284,13 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         {
                             bool isSell = false;
                             // 조건1: 최대 손익율에서 스탑 로스 책정
-                            if (balanceStocks[i].MaxProfitRate - balanceStocks[i].EstimatedProfitRate >= StopLoss)
+                            //if (balanceStocks[i].MaxProfitRate - balanceStocks[i].EstimatedProfitRate >= StopLoss)
+                            //{
+                            //    isSell = true;
+                            //}
+
+                            // 조건: -2.5%나면 판매
+                            if (balanceStocks[i].EstimatedProfitRate <= -2.5f)
                             {
                                 isSell = true;
                             }
