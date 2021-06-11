@@ -80,7 +80,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 잔고 최대 보유 종목 개수
     /// </summary>
-    public sbyte MaxHaveStockCount { get; set; } = 10; //(개)
+    public sbyte MaxHaveStockCount { get; set; } = 1; //(개)
 
     /// <summary>
     /// 매수 기준 분당 성장률
@@ -252,24 +252,27 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                             tempBuyList.Add(recommendeds[i]);
                                     }
 
-                                    float sumGrowthRatePerMinute = 0f;
-                                    for (int i = 0; i < tempBuyList.Count; i++)
+                                    if (tempBuyList.Count > 0)
                                     {
-                                        sumGrowthRatePerMinute += tempBuyList[i].GrowthRatePerMinute;
-                                    }
-
-                                    for (int i = 0; i < tempBuyList.Count; i++)
-                                    {
-                                        var stockInfo = tempBuyList[i];
-                                        // 매수 시도할 분배된 금액
-                                        int buyMoney = (int)(useAvailableMoney * (stockInfo.GrowthRatePerMinute / sumGrowthRatePerMinute));
-                                        // 매수 개수
-                                        int buyCount = Math.Min(buyMoney / stockInfo.StockPrice, MaxBuyCount);
-                                        // 매수
-                                        if (buyCount > 0)
+                                        float sumGrowthRatePerMinute = 0f;
+                                        for (int i = 0; i < tempBuyList.Count; i++)
                                         {
-                                            OrderBuy(stockInfo, buyCount);
-                                            _sellStockInfos.Add(stockInfo);
+                                            sumGrowthRatePerMinute += tempBuyList[i].GrowthRatePerMinute;
+                                        }
+
+                                        for (int i = 0; i < tempBuyList.Count; i++)
+                                        {
+                                            var stockInfo = tempBuyList[i];
+                                            // 매수 시도할 분배된 금액
+                                            int buyMoney = (int)(useAvailableMoney * (stockInfo.GrowthRatePerMinute / sumGrowthRatePerMinute));
+                                            // 매수 개수
+                                            int buyCount = Math.Min(buyMoney / stockInfo.StockPrice, MaxBuyCount);
+                                            // 매수
+                                            if (buyCount > 0)
+                                            {
+                                                OrderBuy(stockInfo, buyCount);
+                                                _sellStockInfos.Add(stockInfo);
+                                            }
                                         }
                                     }
                                 }
