@@ -391,9 +391,12 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     {
                         if (_requestBalanceStocks.Exists(data => data.Equals(balanceStock)))
                             _requestBalanceStocks.Remove(balanceStock);
+                        accountInfo.RemoveMyBalanceStock(balanceStock.TraingSymbol);
                     }
                 }
             }
+            // 주문 실패하든.. 말든.. 일단 삭제 처리
+            //accountInfo.RemoveMyBalanceStock(balanceStock.TraingSymbol);
         }
     }
 
