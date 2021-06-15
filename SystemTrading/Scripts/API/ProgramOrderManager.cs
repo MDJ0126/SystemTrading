@@ -105,7 +105,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 금일 목표 수익률
     /// </summary>
-    public float TodayTargetAccountProfitRate { get; set; } = 3.5f;
+    public float TodayTargetAccountProfitRate { get; set; } = 1.5f;
 
     /// <summary>
     /// 금일 목표 수익률 완료 여부
@@ -292,23 +292,29 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             //    isSell = true;
                             //}
 
-                            // 조건: -2.5%나면 판매
+                            // 조건: -2.5% 적자 발생 시 매도
                             if (balanceStocks[i].EstimatedProfitRate <= -2.5f)
                             {
                                 isSell = true;
                             }
 
-                            // 조건5: 목표 등락율 달성
-                            if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
+                            // 조건: 1.5% 수익 발생 시 매도
+                            if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
                             {
                                 isSell = true;
                             }
 
+                            // 조건5: 목표 등락율 달성
+                            //if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
+                            //{
+                            //    isSell = true;
+                            //}
+
                             // 조건6: 최대 등락율(25%) 달성, 조건5 방어 코드
-                            if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
-                            {
-                                isSell = true;
-                            }
+                            //if (balanceStocks[i].stockInfo.UpDownRate >= MaxPriceRate)
+                            //{
+                            //    isSell = true;
+                            //}
 
                             if (isSell)
                             {
