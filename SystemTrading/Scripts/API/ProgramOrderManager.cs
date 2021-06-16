@@ -299,7 +299,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             }
 
                             // 조건: 1.5% 수익 발생 시 매도
-                            if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
+                            if (balanceStocks[i].EstimatedProfitRate >= 2.5f)
                             {
                                 isSell = true;
                             }
