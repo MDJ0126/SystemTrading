@@ -48,9 +48,9 @@ public class BalanceStock
     public DateTime? OrderTime { get; set; } = null;
 
     /// <summary>
-    /// 체결 이후 구매해서 가지고 있기 시작한 시간
+    /// 완전히 매수를 시작한 시간
     /// </summary>
-    public DateTime BuyTime { get; set; } = DateTime.MinValue;
+    public DateTime? BuyTime { get; set; } = null;
 
     /// <summary>
     /// 종목 정보
@@ -160,6 +160,7 @@ public class BalanceStock
         {
             // 주문 잔량이 0개면 주문 정보 삭제
             InitializeOrderState();
+            this.BuyTime = null;
         }
     }
 

@@ -333,17 +333,26 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     }
                     sellStocks.Clear();
 
-                    // 3. 너무 오래동안 매수 주문 걸려있으면 취소 처리
+                    // 3. 장시간 보유시, 매도 처리
                     for (int i = 0; i < balanceStocks.Count; i++)
                     {
                         var balanceStock = balanceStocks[i];
                         if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
                         {
-                            // 10분 이상인 경우 취소 처리
+                            // 매수 주문이 10분 이상인 경우 취소 처리
                             if (balanceStock.OrderTime != null)
                             {
                                 if (balanceStock.OrderTime.Value.AddMinutes(10) <= ProgramConfig.NowTime)
                                     OrderCancel(balanceStock.stockInfo);
+                            }
+                        }
+                        else if (balanceStock.BalanceStockState == eBalanceStockState.Have)
+                        {
+                            // 보유 시간이 너무 길 경우 매도 처리
+                            if (balanceStock.BuyTime != null)
+                            {
+                                if (balanceStock.OrderTime.Value.AddMinutes(20) <= ProgramConfig.NowTime)
+                                    OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                             }
                         }
                     }
