@@ -351,7 +351,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             // 보유 시간이 너무 길 경우 매도 처리
                             if (balanceStock.BuyTime != null)
                             {
-                                if (balanceStock.OrderTime.Value.AddMinutes(20) <= ProgramConfig.NowTime)
+                                if (balanceStock.BuyTime.Value.AddMinutes(20) <= ProgramConfig.NowTime)
                                     OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                             }
                         }
