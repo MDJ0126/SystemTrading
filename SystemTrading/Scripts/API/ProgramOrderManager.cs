@@ -304,6 +304,20 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 isSell = true;
                             }
 
+                            // 보유 시간이 너무 길 경우 매도 처리
+                            if (balanceStocks[i].BuyTime != null)
+                            {
+                                if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
+                                {
+                                    if (balanceStocks[i].BuyTime.Value.AddMinutes(30) <= ProgramConfig.NowTime)
+                                        isSell = true;
+                                }
+                                else if (balanceStocks[i].BuyTime.Value.AddMinutes(60) <= ProgramConfig.NowTime)
+                                {
+                                    isSell = true;
+                                }
+                            }
+
                             // 조건5: 목표 등락율 달성
                             //if (balanceStocks[i].stockInfo.UpDownRate >= balanceStocks[i].targetUpDownRate)
                             //{
@@ -344,15 +358,6 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             {
                                 if (balanceStock.OrderTime.Value.AddMinutes(10) <= ProgramConfig.NowTime)
                                     OrderCancel(balanceStock.stockInfo);
-                            }
-                        }
-                        else if (balanceStock.BalanceStockState == eBalanceStockState.Have)
-                        {
-                            // 보유 시간이 너무 길 경우 매도 처리
-                            if (balanceStock.BuyTime != null)
-                            {
-                                if (balanceStock.BuyTime.Value.AddMinutes(20) <= ProgramConfig.NowTime)
-                                    OrderSell(balanceStock.stockInfo, balanceStock.HaveCnt);
                             }
                         }
                     }
