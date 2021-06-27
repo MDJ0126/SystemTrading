@@ -298,7 +298,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 isSell = true;
                             }
 
-                            // 조건: 1.5% 수익 발생 시 매도
+                            // 조건: 2.5% 수익 발생 시 매도
                             if (balanceStocks[i].EstimatedProfitRate >= 2.5f)
                             {
                                 isSell = true;
@@ -307,14 +307,19 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             // 보유 시간이 너무 길 경우 매도 처리
                             if (balanceStocks[i].BuyTime != null)
                             {
-                                if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
-                                {
-                                    if (balanceStocks[i].BuyTime.Value.AddMinutes(30) <= ProgramConfig.NowTime)
-                                        isSell = true;
-                                }
-                                else if (balanceStocks[i].BuyTime.Value.AddMinutes(60) <= ProgramConfig.NowTime)
+                                if (balanceStocks[i].BuyTime.Value.AddMinutes(60) <= ProgramConfig.NowTime)
                                 {
                                     isSell = true;
+                                }
+                                else if (balanceStocks[i].BuyTime.Value.AddMinutes(40) <= ProgramConfig.NowTime)
+                                {
+                                    if (balanceStocks[i].EstimatedProfitRate >= 0.5f)
+                                        isSell = true;
+                                }
+                                else if (balanceStocks[i].BuyTime.Value.AddMinutes(20) <= ProgramConfig.NowTime)
+                                {
+                                    if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
+                                        isSell = true;
                                 }
                             }
 
