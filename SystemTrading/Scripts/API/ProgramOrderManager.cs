@@ -85,7 +85,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 매수 기준 분당 성장률
     /// </summary>
-    public float BaseGrowthRatePerMinute { get; set; } = 2.0f;
+    public float BaseGrowthRatePerMinute { get; set; } = 1.5f;
 
     /// <summary>
     /// 최대 매수 시도 개수
@@ -110,12 +110,31 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     /// <summary>
     /// 금일 목표 수익률 완료 여부
     /// </summary>
-    public bool IsCompleteTodyTrading
+    public bool IsCompleteTodayTrading
     { 
         get
         {
             if (AccountInfo != null)
                 return AccountInfo.TodayProfitRate >= TodayTargetAccountProfitRate;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 금일 거래 실패시 거래를 멈출 적자률
+    /// </summary>
+    public float TodayFailuerAccountProfitRate { get; set; } = -3.5f;
+
+
+    /// <summary>
+    /// 금일 거래 실패했는지
+    /// </summary>
+    public bool IsFailuerTodayTrading
+    {
+        get
+        {
+            if (AccountInfo != null)
+                return AccountInfo.TodayProfitRate <= TodayFailuerAccountProfitRate;
             return false;
         }
     }
@@ -210,7 +229,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 // 조건: 매수시 등락율 범위
                                 if (stockInfo.UpDownRate >= StartRate && stockInfo.UpDownRate <= LimitRate)
                                 {
-                                    // 조건: 분당 성장률 2%이상일 때
+                                    // 조건: 분당 성장률 1.5%이상일 때
                                     if (stockInfo.GrowthRatePerMinute >= BaseGrowthRatePerMinute)
                                     {
                                         isBuy = true;
@@ -233,7 +252,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     // 주문 진행 중인 경우에는 불가하도록 (완전히 계산되지 않을 때는 엉뚱하게 계속 주문하게됨. 이를 방지)
                     // + 목표 수익률 달성하면 매수 안 함.
                     bool isBuyAvailableState = !AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have);
-                    if (isBuyAvailableState && !IsCompleteTodyTrading)
+                    if (isBuyAvailableState && !IsCompleteTodayTrading && !IsFailuerTodayTrading)
                     {
                         if (AccountInfo != null)
                         {
@@ -293,13 +312,13 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             //}
 
                             // 조건: -2.5% 적자 발생 시 매도
-                            if (balanceStocks[i].EstimatedProfitRate <= -2.5f)
+                            if (balanceStocks[i].EstimatedProfitRate <= -2.0f)
                             {
                                 isSell = true;
                             }
 
                             // 조건: 2.5% 수익 발생 시 매도
-                            if (balanceStocks[i].EstimatedProfitRate >= 2.5f)
+                            if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
                             {
                                 isSell = true;
                             }
@@ -318,7 +337,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                                 }
                                 else if (balanceStocks[i].BuyTime.Value.AddMinutes(20) <= ProgramConfig.NowTime)
                                 {
-                                    if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
+                                    if (balanceStocks[i].EstimatedProfitRate >= 1.0f)
                                         isSell = true;
                                 }
                             }
@@ -373,9 +392,14 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     if (isTradingEnd)
                     {
                         isTradingEnd = false;
-                        if (IsCompleteTodyTrading)
+                        if (IsCompleteTodayTrading)
                         {
-                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원({AccountInfo.TodayProfitRate:F2}%)의 수익으로 금일 거래에 안정적인 거래로 완료되었습니다.😆" +
+                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원({AccountInfo.TodayProfitRate:F2}%)의 수익으로 안정적인 거래로 완료되었습니다.😆" +
+                                                    $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)", Utils.FormCapture(FormManager.MainForm));
+                        }
+                        else if (IsFailuerTodayTrading)
+                        {
+                            LineNotify.SendMessage($"{AccountInfo.TodayProfitAmount:N0}원({AccountInfo.TodayProfitRate:F2}%)의 적자 수익으로 금일 거래가 실패되었습니다.😭" +
                                                     $"\n(설정된 목표 수익률 : {TodayTargetAccountProfitRate:F2}%)", Utils.FormCapture(FormManager.MainForm));
                         }
                         else
