@@ -311,14 +311,14 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                             //    isSell = true;
                             //}
 
-                            // 조건: -2.5% 적자 발생 시 매도
+                            // 조건: -2.0% 적자 발생 시 매도
                             if (balanceStocks[i].EstimatedProfitRate <= -2.0f)
                             {
                                 isSell = true;
                             }
 
                             // 조건: 2.5% 수익 발생 시 매도
-                            if (balanceStocks[i].EstimatedProfitRate >= 1.5f)
+                            if (balanceStocks[i].EstimatedProfitRate >= 2.5f)
                             {
                                 isSell = true;
                             }
@@ -371,16 +371,15 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     }
                     sellStocks.Clear();
 
-                    // 3. 장시간 보유시, 매도 처리
+                    // 3. 매수 주문이 장기간 일 경우 주문 취소 처리
                     for (int i = 0; i < balanceStocks.Count; i++)
                     {
                         var balanceStock = balanceStocks[i];
-                        if (balanceStock.BalanceStockState == eBalanceStockState.RequestBuy)
+                        if (balanceStock.BalanceStockState == eBalanceStockState.Buying)
                         {
-                            // 매수 주문이 10분 이상인 경우 취소 처리
                             if (balanceStock.OrderTime != null)
                             {
-                                if (balanceStock.OrderTime.Value.AddMinutes(10) <= ProgramConfig.NowTime)
+                                if (balanceStock.OrderTime.Value.AddMinutes(15) <= ProgramConfig.NowTime)
                                     OrderCancel(balanceStock.stockInfo);
                             }
                         }

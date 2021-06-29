@@ -323,14 +323,18 @@ public class AccountInfo
     }
 
     /// <summary>
-    /// 주식 리스트에서 삭제 (주로 주문 취소 시)
+    /// 주문 취소 처리
     /// </summary>
     /// <param name="tradingSymbol"></param>
-    public void RemoveMyBalanceStock(string tradingSymbol)
+    public void OrderCancelBalanceStock(string tradingSymbol)
     {
         var balanceStock = this.BalanceStocks.Find(stock => stock.TraingSymbol.Contains(tradingSymbol) || tradingSymbol.Contains(stock.TraingSymbol));
         if (balanceStock != null)
-            this.BalanceStocks.Remove(balanceStock);
+        {
+            balanceStock.InitializeOrderState();
+            if (balanceStock.HaveCnt == 0)
+                this.BalanceStocks.Remove(balanceStock);
+        }
     }
 
     /// <summary>
