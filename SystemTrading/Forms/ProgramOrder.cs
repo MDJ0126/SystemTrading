@@ -215,18 +215,13 @@ namespace SystemTrading.Forms
                 }
             }
 
-            if (_stockDataByGrids != null && _stockDataByGrids.Count > 0)
-            {
-                int horizontalScrollingOffset = allStockdataGridView.HorizontalScrollingOffset;
-                int firstDisplayedScrollingRowIndex = allStockdataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : allStockdataGridView.FirstDisplayedScrollingRowIndex;
-                if (firstDisplayedScrollingRowIndex >= 0)
-                {
-                    allStockdataGridView.DataSource = _stockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
-                    allStockdataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-                    allStockdataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
-                    allStockdataGridView.ClearSelection();
-                }
-            }
+            int horizontalScrollingOffset = allStockdataGridView.HorizontalScrollingOffset;
+            int firstDisplayedScrollingRowIndex = allStockdataGridView.FirstDisplayedScrollingRowIndex;
+            allStockdataGridView.DataSource = _stockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
+            allStockdataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
+            if (firstDisplayedScrollingRowIndex >= 0)
+                allStockdataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
+            allStockdataGridView.ClearSelection();
         }
 
         private List<StockDataByGrid> _recommendStockDataByGrids = new List<StockDataByGrid>();
@@ -246,18 +241,13 @@ namespace SystemTrading.Forms
                 _recommendStockDataByGrids.Add(new StockDataByGrid(recommendeds[i]));
             }
 
-            if (_recommendStockDataByGrids != null && _recommendStockDataByGrids.Count > 0)
-            {
-                int horizontalScrollingOffset = recommendDataGridView.HorizontalScrollingOffset;
-                int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : recommendDataGridView.FirstDisplayedScrollingRowIndex;
-                if (firstDisplayedScrollingRowIndex >= 0)
-                {
-                    recommendDataGridView.DataSource = _recommendStockDataByGrids;
-                    recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-                    recommendDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
-                    recommendDataGridView.ClearSelection();
-                }
-            }
+            int horizontalScrollingOffset = recommendDataGridView.HorizontalScrollingOffset;
+            int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex;
+            recommendDataGridView.DataSource = _recommendStockDataByGrids;
+            recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
+            if (firstDisplayedScrollingRowIndex >= 0)
+                recommendDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
+            recommendDataGridView.ClearSelection();
         }
 
         /// <summary>
@@ -278,7 +268,7 @@ namespace SystemTrading.Forms
             if (accountInfo != null)
             {
                 int horizontalScrollingOffset = balanceDataGridView.HorizontalScrollingOffset;
-                int firstDisplayedScrollingRowIndex = balanceDataGridView.FirstDisplayedScrollingRowIndex < 0 ? 0 : balanceDataGridView.FirstDisplayedScrollingRowIndex;
+                int firstDisplayedScrollingRowIndex = balanceDataGridView.FirstDisplayedScrollingRowIndex;
                 balanceDataGridView.Rows.Clear();
                 for (int i = 0; i < accountInfo.BalanceStocks.Count; i++)
                 {
@@ -356,7 +346,7 @@ namespace SystemTrading.Forms
                                      $"사용가능액 : {accountInfo.AvailableMoney.ToString("n0")}원";
 
                 balanceDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-                if (balanceDataGridView.FirstDisplayedScrollingRowIndex >= 0)
+                if (firstDisplayedScrollingRowIndex >= 0)
                     balanceDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
                 balanceDataGridView.ClearSelection();
             }
