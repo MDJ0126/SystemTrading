@@ -219,7 +219,7 @@ namespace SystemTrading.Forms
             int firstDisplayedScrollingRowIndex = allStockdataGridView.FirstDisplayedScrollingRowIndex;
             allStockdataGridView.DataSource = _stockDataByGrids.OrderByDescending(a => a.Score).ThenByDescending(a => a.stockInfo.UpDownRate).ThenBy(a => a.stockInfo.tradingSymbol).ToList();
             allStockdataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-            if (firstDisplayedScrollingRowIndex >= 0)
+            if (allStockdataGridView.FirstDisplayedScrollingRowIndex >= 0 && firstDisplayedScrollingRowIndex >= 0 && allStockdataGridView.Rows.Count > 0)
                 allStockdataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
             allStockdataGridView.ClearSelection();
         }
@@ -245,7 +245,7 @@ namespace SystemTrading.Forms
             int firstDisplayedScrollingRowIndex = recommendDataGridView.FirstDisplayedScrollingRowIndex;
             recommendDataGridView.DataSource = _recommendStockDataByGrids;
             recommendDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-            if (firstDisplayedScrollingRowIndex >= 0)
+            if (recommendDataGridView.FirstDisplayedScrollingRowIndex >= 0 && firstDisplayedScrollingRowIndex >= 0&& recommendDataGridView.Rows.Count > 0)
                 recommendDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
             recommendDataGridView.ClearSelection();
         }
@@ -346,7 +346,7 @@ namespace SystemTrading.Forms
                                      $"사용가능액 : {accountInfo.AvailableMoney.ToString("n0")}원";
 
                 balanceDataGridView.HorizontalScrollingOffset = horizontalScrollingOffset;
-                if (firstDisplayedScrollingRowIndex >= 0)
+                if (balanceDataGridView.FirstDisplayedScrollingRowIndex >= 0 && firstDisplayedScrollingRowIndex >= 0&& balanceDataGridView.Rows.Count > 0)
                     balanceDataGridView.FirstDisplayedScrollingRowIndex = firstDisplayedScrollingRowIndex;
                 balanceDataGridView.ClearSelection();
             }

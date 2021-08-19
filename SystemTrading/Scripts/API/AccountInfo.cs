@@ -328,12 +328,11 @@ public class AccountInfo
     /// <param name="tradingSymbol"></param>
     public void OrderCancelBalanceStock(string tradingSymbol)
     {
-        var balanceStock = this.BalanceStocks.Find(stock => stock.TraingSymbol.Contains(tradingSymbol) || tradingSymbol.Contains(stock.TraingSymbol));
+        var balanceStock = GetMyBalanceStock(tradingSymbol);
         if (balanceStock != null)
         {
             balanceStock.InitializeOrderState();
-            if (balanceStock.HaveCnt == 0)
-                this.BalanceStocks.Remove(balanceStock);
+            this.BalanceStocks.Remove(balanceStock);
         }
     }
 

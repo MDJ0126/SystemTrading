@@ -252,7 +252,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                     // 주문 진행 중인 경우에는 불가하도록 (완전히 계산되지 않을 때는 엉뚱하게 계속 주문하게됨. 이를 방지)
                     // + 목표 수익률 달성하면 매수 안 함.
                     bool isBuyAvailableState = !AccountInfo.BalanceStocks.Exists(balanceStock => balanceStock.BalanceStockState != eBalanceStockState.Have);
-                    if (isBuyAvailableState && !IsCompleteTodayTrading && !IsFailuerTodayTrading)
+                    if (isBuyAvailableState /*&& !IsCompleteTodayTrading && !IsFailuerTodayTrading*/)
                     {
                         if (AccountInfo != null)
                         {
