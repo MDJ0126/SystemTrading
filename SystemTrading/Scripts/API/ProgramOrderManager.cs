@@ -146,7 +146,7 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
     {
         // 프로그램 자동 거래 시간 금일 오전 9시 10분 ~ 오후 2시 30분까지
         _tradingStartTime   = ProgramConfig.NowTime.Date.AddHours(9).AddMinutes(00);
-        _tradingEndTime     = ProgramConfig.NowTime.Date.AddHours(14).AddMinutes(30);
+        _tradingEndTime     = ProgramConfig.NowTime.Date.AddHours(15).AddMinutes(00);
         _sellStockInfos.Clear();
     }
 

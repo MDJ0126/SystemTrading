@@ -375,7 +375,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
         if (accountInfo != null)
         {
             var balanceStock = accountInfo.GetMyBalanceStock(stockInfo.tradingSymbol);
-            if (balanceStock != null && !string.IsNullOrEmpty(balanceStock.OrderNumber))
+            if (balanceStock != null)
             {
                 eSendOrderType sendOrderType = eSendOrderType.None;
                 if (balanceStock.BalanceStockState == eBalanceStockState.Buying) sendOrderType = eSendOrderType.매수취소;
@@ -387,7 +387,7 @@ public partial class KiwoomManager : Singleton<KiwoomManager>
                     RequestTransactionDatas.Add(requestTransactionData);
 
                     var result = this.AxKHOpenAPI.SendOrder(sendOrderType.ToString(), balanceStock.OrderScreenNumber, this.LoginInfo.SelectAccount.AccountNumber, (int)sendOrderType, stockInfo.tradingSymbol, balanceStock.OrderCount, 0, eSendType.시장가.ToDescription(), balanceStock.OrderNumber);
-                    if (result == 0)
+                    //if (result == 0)
                     {
                         if (_requestBalanceStocks.Exists(data => data.Equals(balanceStock)))
                             _requestBalanceStocks.Remove(balanceStock);
