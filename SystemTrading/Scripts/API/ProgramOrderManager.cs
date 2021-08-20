@@ -379,8 +379,11 @@ public class ProgramOrderManager : Singleton<ProgramOrderManager>
                         {
                             if (balanceStock.OrderTime != null)
                             {
-                                if (balanceStock.OrderTime.Value.AddMinutes(15) <= ProgramConfig.NowTime)
-                                    OrderCancel(balanceStock.stockInfo);
+                                if (balanceStock.OrderTime.Value != DateTime.MinValue)
+                                {
+                                    if (balanceStock.OrderTime.Value.AddMinutes(15) <= ProgramConfig.NowTime)
+                                        OrderCancel(balanceStock.stockInfo);
+                                }
                             }
                         }
                     }

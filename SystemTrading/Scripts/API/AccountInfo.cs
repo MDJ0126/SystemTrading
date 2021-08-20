@@ -206,6 +206,7 @@ public class AccountInfo
                 balanceStock = new BalanceStock(traingSymbol, 0, 0);
                 BalanceStocks.Add(balanceStock);
             }
+            balanceStock.SetOrder(screenNumber, isSendOrderSuccess, orderNumber, orderCount, orderPrice, waitOrderCnt, DateTime.MinValue);
 
             if (orderType.Contains("취소"))
             {
@@ -214,7 +215,6 @@ public class AccountInfo
             }
             else
             {
-                balanceStock.SetOrder(screenNumber, isSendOrderSuccess, orderNumber, orderCount, orderPrice, waitOrderCnt, DateTime.MinValue);
                 balanceStock.SetOrderState(eBalanceStockState.Buying);
             }
         }
@@ -222,13 +222,13 @@ public class AccountInfo
         {
             if (balanceStock != null)
             {
+                balanceStock.SetOrder(screenNumber, isSendOrderSuccess, orderNumber, orderCount, orderPrice, waitOrderCnt, DateTime.MinValue);
                 if (orderType.Contains("취소"))
                 {
                     balanceStock.InitializeOrderState();
                 }
                 else
                 {
-                    balanceStock.SetOrder(screenNumber, isSendOrderSuccess, orderNumber, orderCount, orderPrice, waitOrderCnt, DateTime.MinValue);
                     balanceStock.SetOrderState(eBalanceStockState.Selling);
                 }
             }
