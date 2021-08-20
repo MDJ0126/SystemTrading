@@ -625,17 +625,17 @@ public partial class KiwoomManager
                                                 string traingSymbol;
                                                 int haveCnt;
                                                 long buyingMoney;
-                                                int stockPrice;
+                                                //int stockPrice;
                                                 //long estimatedProfit;
                                                 //float estimatedProfitRate;
 
                                                 traingSymbol = GetTransactionData("종목코드");
                                                 int.TryParse(GetTransactionData("보유수량"), out haveCnt);
                                                 long.TryParse(GetTransactionData("매입금액"), out buyingMoney);
-                                                int.TryParse(GetTransactionData("현재가"), out stockPrice);
+                                                //int.TryParse(GetTransactionData("현재가"), out stockPrice);
                                                 //long.TryParse(GetTransactionData("손익금액"), out estimatedProfit);
                                                 //float.TryParse(GetTransactionData("손익율"), out estimatedProfitRate);
-                                                accountInfo.BalanceStock(traingSymbol, haveCnt, buyingMoney, stockPrice);
+                                                accountInfo.CreateBalanceStock(traingSymbol, haveCnt, buyingMoney);
                                             }
                                         }
                                     }

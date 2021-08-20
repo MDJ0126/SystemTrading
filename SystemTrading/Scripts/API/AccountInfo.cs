@@ -167,20 +167,21 @@ public class AccountInfo
     /// <param name="traingSymbol"></param>
     /// <param name="haveCnt"></param>
     /// <param name="buyingMoney"></param>
-    public void BalanceStock(string traingSymbol, int haveCnt, long buyingMoney, int stockPrice)
+    public BalanceStock CreateBalanceStock(string traingSymbol, int haveCnt, long buyingMoney)
     {
         BalanceStock balanceStock = GetMyBalanceStock(traingSymbol);
         if (balanceStock != null)
         {
             // 수정
-            balanceStock.SetData(traingSymbol, haveCnt, buyingMoney, stockPrice);
+            balanceStock.SetData(traingSymbol, haveCnt, buyingMoney);
         }
         else
         {
             // 추가
-            balanceStock = new BalanceStock(traingSymbol, haveCnt, buyingMoney, stockPrice);
+            balanceStock = new BalanceStock(traingSymbol, haveCnt, buyingMoney);
             this.BalanceStocks.Add(balanceStock);
         }
+        return balanceStock;
     }
 
     /// <summary>
@@ -254,6 +255,11 @@ public class AccountInfo
         this.TodayProfitAmount -= tax;
 
         BalanceStock balanceStock = GetMyBalanceStock(traingSymbol);
+        if (balanceStock == null)
+        {
+            balanceStock = CreateBalanceStock(traingSymbol, resultCount, resultPrice);
+        }
+
         if (balanceStock != null)
         {
             if (orderType.Contains("매수"))
