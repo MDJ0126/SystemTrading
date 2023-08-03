@@ -7,7 +7,7 @@ public static class DatabaseCommand
     public const string PORT        = "3306";
     public const string DATABASE    = "systemtrading";
     public const string UID         = "root";
-    public const string PWD         = "ehdwns";
+    public const string PWD         = "password";
 
     private static MySqlConnection GetMySqlConnection()
     {
