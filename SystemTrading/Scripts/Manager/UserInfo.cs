@@ -13,7 +13,7 @@ namespace SystemTrading.Scripts.Manager
 
         public void Initialize()
         {
-            Id = "0815dong";
+            Id = string.Empty;
             Password = "";
         }
 
